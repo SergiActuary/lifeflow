@@ -10,3 +10,10 @@ build/
 .coverage
 htmlcov/
 .ipynb_checkpoints/
+
+# personal / entorno local
+data/
+notebook/
+tests/
+.zed/
+CLAUDE.md

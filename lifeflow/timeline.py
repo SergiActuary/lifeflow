@@ -6,19 +6,19 @@ class Timeline:
         self.contract_boundary = contract_boundary
         self.included = included
 
-    def resolve(self, portfolio):
+    def resolve(self, portfolio) -> np.ndarray:
         end = portfolio.cols[self.contract_boundary].astype(int)
         if self.included:
             end = end + 1
         return end
 
-    def horizon(self, portfolio):
+    def horizon(self, portfolio) -> int:
         return self.resolve(portfolio).max()
 
-    def grid(self, portfolio):
+    def grid(self, portfolio) -> np.ndarray:
         return np.arange(self.horizon(portfolio))
 
-    def mask(self, portfolio):
+    def mask(self, portfolio) -> np.ndarray:
         end = self.resolve(portfolio)
         T = end.max()
         return np.arange(T) < end[:, None]

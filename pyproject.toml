@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lifeflow"
+version = "0.1.0"
+description = "Life actuarial calculation engine"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "polars",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

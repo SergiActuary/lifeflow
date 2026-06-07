@@ -4,14 +4,30 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lifeflow"
-version = "0.1.0"
-description = "Life actuarial calculation engine"
+version = "0.0.1"
+description = "Vectorized life actuarial cash-flow and BEL engine"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "SergiActuary" },
+]
+keywords = ["actuarial", "life-insurance", "cashflow", "BEL", "numpy"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
 dependencies = [
     "polars",
     "numpy",
 ]
+
+[project.urls]
+Homepage = "https://github.com/SergiActuary/lifeflow"
+Repository = "https://github.com/SergiActuary/lifeflow"
 
 [project.optional-dependencies]
 dev = [

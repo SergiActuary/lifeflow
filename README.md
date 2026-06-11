@@ -5,7 +5,7 @@ Life actuarial calculation engine for portfolio cash flow projection and BEL com
 ## Installation
 
 ```bash
-pip install -e .
+pip install lifeflow
 ```
 
 ## Usage

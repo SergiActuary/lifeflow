@@ -10,7 +10,7 @@ Built on numpy — all calculations are vectorized as N × T grids, where N is t
 
 lifeflow lets the actuary define their own cash flows using Python lambdas. The library then automates:
 
-- **tINFx derivation** — survival grid from any combination of decrement hypotheses, with exact multiple-decrement formulas under UDD
+- **tINFx derivation** — policy in-force grid from any combination of decrement hypotheses, with exact multiple-decrement formulas under UDD
 - **Actuarial hypotheses** — mortality, lapse, disability or any rate vector, indexed by age, duration or any policy variable
 - **Portfolio extension** — all calculations broadcast automatically across the full portfolio
 

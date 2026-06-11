@@ -1,3 +1,5 @@
+from itertools import combinations
+
 import numpy as np
 
 
@@ -17,5 +19,15 @@ class Inforce:
     def exit_by(self, decrement, portfolio) -> np.ndarray:
         inforce = self.grid(portfolio)
         q = decrement.grid(portfolio)
-        others = sum(d.grid(portfolio) for d in self.decrements if d is not decrement)
-        return inforce * q * (1 - 0.5 * others)
+        others = [d.grid(portfolio) for d in self.decrements if d is not decrement]
+
+        correction = np.ones_like(q)
+        for k in range(1, len(others) + 1):
+            sign = (-1) ** k
+            for idx in combinations(range(len(others)), k):
+                product = np.ones_like(q)
+                for i in idx:
+                    product = product * others[i]
+                correction = correction + sign / (k + 1) * product
+
+        return inforce * q * correction

@@ -8,9 +8,12 @@ class Flow:
         self.formula = formula
         self.timeline = timeline
 
-    def grid(self, portfolio) -> np.ndarray:
+    def grid(self, portfolio, include_present=False) -> np.ndarray:
         ts = self.timeline.grid(portfolio)
         names = inspect.signature(self.formula).parameters
         args = [ts if n == "t" else portfolio.cols[n][:, None] for n in names]
         cashflow = self.formula(*args)
-        return cashflow * self.timeline.mask(portfolio)
+        result = cashflow * self.timeline.mask(portfolio)
+        if not include_present:
+            result[:, 0] = 0
+        return result

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lifeflow"
-version = "0.0.1"
+version = "0.0.2"
 description = "Vectorized life actuarial cash-flow and BEL engine"
 readme = "README.md"
 requires-python = ">=3.11"

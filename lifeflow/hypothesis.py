@@ -19,10 +19,11 @@ class Hypothesis:
     def grid(self, portfolio) -> np.ndarray:
         offset = self.resolve(portfolio)
         ts = self.timeline.grid(portfolio)
+        ts_lookup = np.maximum(ts - 1, 0)
         if isinstance(offset, np.ndarray):
-            g = self.values[
-                offset[:, None] + ts
-            ]  # aquí pyright SABE que offset es array
+            grid = self.values[offset[:, None] + ts_lookup]
         else:
-            g = self.values[ts]  # aquí offset es el int, y no se usa
-        return g * self.timeline.mask(portfolio)
+            grid = self.values[ts_lookup]
+        grid = grid * self.timeline.mask(portfolio)
+        grid[:, 0] = 0
+        return grid

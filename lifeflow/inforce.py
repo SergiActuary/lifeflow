@@ -1,6 +1,8 @@
-from itertools import combinations
+import warnings
 
 import numpy as np
+
+from lifeflow._inforce_nb import _compute_all
 
 
 class Inforce:
@@ -8,26 +10,19 @@ class Inforce:
         self.decrements = decrements
 
     def grid(self, portfolio) -> np.ndarray:
-        p_stay = 1.0
-        for d in self.decrements:
-            p_stay = p_stay * (1 - d.grid(portfolio))
-        cum = np.cumprod(p_stay, axis=1)
-        inforce = np.ones_like(cum)
-        inforce[:, 1:] = cum[:, :-1]
-        return inforce
+        pass
 
     def exit_by(self, decrement, portfolio) -> np.ndarray:
-        inforce = self.grid(portfolio)
-        q = decrement.grid(portfolio)
-        others = [d.grid(portfolio) for d in self.decrements if d is not decrement]
+        pass
 
-        correction = np.ones_like(q)
-        for k in range(1, len(others) + 1):
-            sign = (-1) ** k
-            for idx in combinations(range(len(others)), k):
-                product = np.ones_like(q)
-                for i in idx:
-                    product = product * others[i]
-                correction = correction + sign / (k + 1) * product
-
-        return inforce * q * correction
+    def compute_all(self, portfolio, method="udd"):
+        if len(self.decrements) > 6:
+            warnings.warn(
+                f"Inforce: UDD with {len(self.decrements)} decrements requires "
+                f"{2 ** (len(self.decrements) - 1)} inclusion-exclusion terms per cause — "
+                f"consider a constant-force method instead",
+                stacklevel=2,
+            )
+        qs = np.stack([d.grid(portfolio) for d in self.decrements], axis=0)
+        method_id = {"udd": 0}.get(method, 0)
+        return _compute_all(qs, method_id)

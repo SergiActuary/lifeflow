@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lifeflow"
-version = "0.0.2"
+version = "0.0.3"
 description = "Vectorized life actuarial cash-flow and BEL engine"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,6 +23,7 @@ classifiers = [
 dependencies = [
     "polars",
     "numpy",
+    "numba",
 ]
 
 [project.urls]

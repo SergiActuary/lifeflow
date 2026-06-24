@@ -1,9 +1,5 @@
-__version__ = "0.0.1"
+__version__ = "0.0.3"
 
-from lifeflow.audit import label
-from lifeflow.flow import Flow
-from lifeflow.hypothesis import Hypothesis
+from lifeflow.interpolate import interpolate
+from lifeflow.decrements import decrements
 from lifeflow.inforce import Inforce
-from lifeflow.portfolio import Portfolio
-from lifeflow.timeline import Timeline
-from lifeflow.transforms import annual_to_monthly, monthly_to_annual

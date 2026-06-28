@@ -5,5 +5,5 @@ from lifeflow.inforce import Inforce
 from lifeflow.decrement import Decrement
 from lifeflow.portfolio import Portfolio
 from lifeflow.timeline import Timeline
-from lifeflow.flow import Flow
+from lifeflow.flow import extend_t, grid
 from lifeflow.audit import audit_grid

@@ -6,4 +6,4 @@ from lifeflow.decrement import Decrement
 from lifeflow.portfolio import Portfolio
 from lifeflow.timeline import Timeline
 from lifeflow.flow import Flow
-from lifeflow.audit import label
+from lifeflow.audit import audit_grid

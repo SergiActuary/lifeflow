@@ -18,34 +18,46 @@ def _load(sheet):
 def test_interpolate_cf_down():
     anual, esperado = _load("cf")
     resultado = interpolate(anual, method="cf", to="down")
-    assert np.allclose(resultado, esperado, rtol=1e-10), f"Diferencias:\n{resultado - esperado}"
+    assert np.allclose(resultado, esperado, rtol=1e-10), (
+        f"Diferencias:\n{resultado - esperado}"
+    )
 
 
 def test_interpolate_cf_up():
     anual, mensual = _load("cf")
     resultado = interpolate(mensual, method="cf", to="up")
-    assert np.allclose(resultado, anual, rtol=1e-10), f"Diferencias:\n{resultado - anual}"
+    assert np.allclose(resultado, anual, rtol=1e-10), (
+        f"Diferencias:\n{resultado - anual}"
+    )
 
 
 def test_interpolate_udd_down():
     anual, esperado = _load("udd")
     resultado = interpolate(anual, method="udd", to="down")
-    assert np.allclose(resultado, esperado, rtol=1e-10), f"Diferencias:\n{resultado - esperado}"
+    assert np.allclose(resultado, esperado, rtol=1e-10), (
+        f"Diferencias:\n{resultado - esperado}"
+    )
 
 
 def test_interpolate_udd_up():
     anual, mensual = _load("udd")
     resultado = interpolate(mensual, method="udd", to="up")
-    assert np.allclose(resultado, anual, rtol=1e-10), f"Diferencias:\n{resultado - anual}"
+    assert np.allclose(resultado, anual, rtol=1e-10), (
+        f"Diferencias:\n{resultado - anual}"
+    )
 
 
 def test_interpolate_compound_down():
     anual, esperado = _load("compound")
     resultado = interpolate(anual, method="compound", to="down")
-    assert np.allclose(resultado, esperado, rtol=1e-10), f"Diferencias:\n{resultado - esperado}"
+    assert np.allclose(resultado, esperado, rtol=1e-10), (
+        f"Diferencias:\n{resultado - esperado}"
+    )
 
 
 def test_interpolate_compound_up():
     anual, mensual = _load("compound")
     resultado = interpolate(mensual, method="compound", to="up")
-    assert np.allclose(resultado, anual, rtol=1e-10), f"Diferencias:\n{resultado - anual}"
+    assert np.allclose(resultado, anual, rtol=1e-10), (
+        f"Diferencias:\n{resultado - anual}"
+    )

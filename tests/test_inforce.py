@@ -3,18 +3,30 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from lifeflow import Inforce, decrements
+from lifeflow import Inforce, Hypothesis, Portfolio, Timeline
 
 DATA = Path(__file__).parent / "datatest"
 
-df = pl.read_excel(DATA / "inforce_test.xlsx")
 
-qx = df["qx"].to_numpy()
-wx = df["wx"].to_numpy()
-inf_reference = df["inf"].to_numpy()
+def _setup():
+    df = pl.read_excel(DATA / "inforce_test.xlsx")
+    qx = df["qx"].to_numpy()
+    wx = df["wx"].to_numpy()
+    T = len(qx)
+
+    portfolio = Portfolio(pl.DataFrame({"duration": [T]}))
+    tl = Timeline("duration")
+    qx_hyp = Hypothesis(qx, tl)
+    wx_hyp = Hypothesis(wx, tl)
+    return portfolio, qx_hyp, wx_hyp, df
 
 
 def test_inforce():
-    dec = decrements(qx=qx, wx=wx)
-    inf = Inforce(dec)
-    assert np.allclose(inf.inforce, inf_reference, rtol=1e-10)
+    portfolio, qx_hyp, wx_hyp, df = _setup()
+    inf_ref = df["inf"].to_numpy()
+
+    inforce = Inforce(portfolio, [qx_hyp, wx_hyp]).inf[0]
+
+    assert np.allclose(inforce, inf_ref, rtol=1e-10), (
+        f"Diferencias:\n{inforce - inf_ref}"
+    )

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Hypothesis:
+class Decrement:
     def __init__(self, values, timeline, index_var=None):
         self.values = values
         self.timeline = timeline

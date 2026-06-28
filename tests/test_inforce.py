@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from lifeflow import Inforce, Hypothesis, Portfolio, Timeline
+from lifeflow import Inforce, Decrement, Portfolio, Timeline
 
 DATA = Path(__file__).parent / "datatest"
 
@@ -16,16 +16,16 @@ def _setup():
 
     portfolio = Portfolio(pl.DataFrame({"duration": [T]}))
     tl = Timeline("duration")
-    qx_hyp = Hypothesis(qx, tl)
-    wx_hyp = Hypothesis(wx, tl)
-    return portfolio, qx_hyp, wx_hyp, df
+    qx_dec = Decrement(qx, tl)
+    wx_dec = Decrement(wx, tl)
+    return portfolio, qx_dec, wx_dec, df
 
 
 def test_inforce():
-    portfolio, qx_hyp, wx_hyp, df = _setup()
+    portfolio, qx_dec, wx_dec, df = _setup()
     inf_ref = df["inf"].to_numpy()
 
-    inforce = Inforce(portfolio, [qx_hyp, wx_hyp]).inf[0]
+    inforce = Inforce(portfolio, [qx_dec, wx_dec]).inf[0]
 
     assert np.allclose(inforce, inf_ref, rtol=1e-10), (
         f"Diferencias:\n{inforce - inf_ref}"

@@ -29,7 +29,10 @@ def grid(func=None, *, n_jobs=-1):
             results = Parallel(n_jobs=n_jobs)(
                 delayed(compute_row)(n) for n in range(N)
             )
-            return np.array(results)
+            arr = np.array(results)
+            if arr.ndim == 3:
+                return tuple(arr[:, :, k] for k in range(arr.shape[2]))
+            return arr
 
         f.grid = grid_method
         return f

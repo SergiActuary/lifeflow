@@ -15,4 +15,5 @@ htmlcov/
 data/
 notebook/
 .zed/
+.claude/
 CLAUDE.md

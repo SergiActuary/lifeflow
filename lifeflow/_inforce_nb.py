@@ -26,6 +26,18 @@ def _udd_correction(q_vec, j):
     return correction
 
 
+@nb.njit
+def _cf_share(q_vec, j):
+    mu_total = 0.0
+    for m in range(len(q_vec)):
+        mu_total += -np.log(1.0 - q_vec[m])
+
+    if mu_total == 0.0:
+        return 0.0
+
+    return -np.log(1.0 - q_vec[j]) / mu_total
+
+
 @nb.njit(parallel=True)
 def _compute_inf(qs):
     k = qs.shape[0]
@@ -55,10 +67,43 @@ def _compute_exits(qs, inf, method_id):
         for idx_t in range(t):
             prev = inf[idx_n, idx_t - 1] if idx_t > 0 else 1.0
             q_vec = qs[:, idx_n, idx_t]
-            for j in range(k):
-                results[j, idx_n, idx_t] = q_vec[j] * prev * _udd_correction(q_vec, j)
+
+            if method_id == 0:
+                for j in range(k):
+                    results[j, idx_n, idx_t] = q_vec[j] * prev * _udd_correction(q_vec, j)
+
+            else:
+                stay = 1.0
+                for m in range(k):
+                    stay *= 1.0 - q_vec[m]
+                exits = 1.0 - stay
+                for j in range(k):
+                    results[j, idx_n, idx_t] = prev * exits * _cf_share(q_vec, j)
 
     return results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # warmup

@@ -21,16 +21,19 @@ def _setup():
     return portfolio, qx_dec, wx_dec, df
 
 
-def test_exit_by():
+def test_exit_by_cf():
     portfolio, qx_dec, wx_dec, df = _setup()
     exit_qx_ref = df["exit_by_qx"].to_numpy()
     exit_wx_ref = df["exit_by_wx"].to_numpy()
 
     inf = Inforce(portfolio, [qx_dec, wx_dec])
 
-    assert np.allclose(inf.exit_by(qx_dec)[0], exit_qx_ref, rtol=1e-5), (
-        f"exit_qx diferencias:\n{inf.exit_by(qx_dec)[0] - exit_qx_ref}"
+    exit_qx = inf.exit_by(qx_dec, method="cf")[0]
+    exit_wx = inf.exit_by(wx_dec, method="cf")[0]
+
+    assert np.allclose(exit_qx, exit_qx_ref, rtol=1e-12, atol=0), (
+        f"exit_qx diferencias:\n{exit_qx - exit_qx_ref}"
     )
-    assert np.allclose(inf.exit_by(wx_dec)[0], exit_wx_ref, rtol=1e-5), (
-        f"exit_wx diferencias:\n{inf.exit_by(wx_dec)[0] - exit_wx_ref}"
+    assert np.allclose(exit_wx, exit_wx_ref, rtol=1e-12, atol=0), (
+        f"exit_wx diferencias:\n{exit_wx - exit_wx_ref}"
     )

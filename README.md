@@ -47,25 +47,14 @@ tl        = lf.Timeline("term_months")
 
 `Timeline` takes the column holding each policy's contract boundary. It sets the horizon `T` (the longest policy) and masks every grid past each policy's own end.
 
-Annual rates are split to the projection frequency, then wrapped as decrements indexed by a policy variable:
+Rates already on the projection frequency are wrapped as decrements, indexed by a policy variable:
 
 ```python
-qx_monthly = lf.interpolate(qx_annual, method="geomdecr", freq=12, to="down")
-wx_monthly = lf.interpolate(wx_annual, method="geomdecr", freq=12, to="down")
-
 qx = lf.Decrement(qx_monthly, tl, index_var="age_months")
 wx = lf.Decrement(wx_monthly, tl, index_var="age_months")
 ```
 
-`interpolate` is a plain vector operation — it names the arithmetic, not an actuarial assumption, and it makes no claim about what the numbers mean. Pick the one you want and pass `to="up"` for the inverse:
-
-| method | `to="down"` | `to="up"` |
-|---|---|---|
-| `linear` | `x / freq` | sum over each block |
-| `geomdecr` | `1 − (1−x)^(1/freq)` | `1 − Π(1−x)` |
-| `geomincr` | `(1+x)^(1/freq) − 1` | `Π(1+x) − 1` |
-
-`geomdecr` splits a rate that decreases a population (mortality, lapse); `geomincr` splits one that grows it (interest). Both round-trip exactly. `linear` divides evenly and inverts by summing, so it round-trips only against itself.
+Splitting annual rates to a monthly grid is a one-line numpy operation and is left to the caller — `1 − (1−q)**(1/12)` repeated over each year for a decrement, `(1+i)**(1/12) − 1` for a rate that compounds upward.
 
 `Inforce` derives the in-force grid and the exits by cause. Both are computed lazily and cached:
 

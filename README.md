@@ -82,6 +82,8 @@ def discount(t):
 bel = (exit_death * death_benefit() * discount()).sum(axis=1)
 ```
 
+**`t` runs from 1 to T, not from 0.** The present is never a projection period: the first column is one period into the future, already discounted. Every part of the library follows this — `@grid`, `@extend_t`, and the duration functions in `alm`.
+
 Use `jit=True` for purely mathematical flows: the function is compiled with `numba.vectorize` and runs over the grid with no Python loop. For flows that need arbitrary Python (lookups, branching on objects), leave the default `jit=False` and the rows are computed in parallel via joblib (`n_jobs=-1`). A flow returning a tuple yields one N × T grid per element.
 
 To build a single 1-D vector of length T rather than a portfolio grid, use `@extend_t`:

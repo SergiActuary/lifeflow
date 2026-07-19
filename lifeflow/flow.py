@@ -8,8 +8,8 @@ def extend_t(T):
     def decorator(func):
         def wrapper(*args):
             result = np.zeros(T)
-            for t in range(T):
-                result[t] = func(t, *args)
+            for t in range(1, T + 1):
+                result[t - 1] = func(t, *args)
             return result
         return wrapper
     return decorator
@@ -26,7 +26,7 @@ def grid(portfolio, timeline, *, n_jobs=-1, jit=False):
             import numba as nb
             f_vec = nb.vectorize(f)
             t_grid = np.ascontiguousarray(
-                np.tile(np.arange(T, dtype=np.int64), (N, 1))
+                np.tile(np.arange(1, T + 1, dtype=np.int64), (N, 1))
             )
             p_grids = [
                 np.ascontiguousarray(
@@ -41,7 +41,7 @@ def grid(portfolio, timeline, *, n_jobs=-1, jit=False):
         else:
             def compute_row(n):
                 scalars = [portfolio.cols[p][n] for p in params]
-                return [f(t, *scalars) for t in range(T)]
+                return [f(t, *scalars) for t in range(1, T + 1)]
 
             def wrapper():
                 results = Parallel(n_jobs=n_jobs)(

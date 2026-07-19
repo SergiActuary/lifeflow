@@ -7,6 +7,4 @@ from lifeflow.portfolio import Portfolio
 from lifeflow.timeline import Timeline
 from lifeflow.flow import extend_t, grid
 from lifeflow.audit import audit_grid
-from lifeflow.duration_macaulay import duration_macaulay
-from lifeflow.duration_hicks import duration_hicks
-from lifeflow.convexity import convexity
+from lifeflow.alm import duration_macaulay, duration_hicks, convexity

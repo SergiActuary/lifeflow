@@ -11,6 +11,16 @@ build/
 htmlcov/
 .ipynb_checkpoints/
 
+# subproductos de LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+_minted*/
+
 # personal / entorno local
 data/
 notebook/

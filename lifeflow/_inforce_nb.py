@@ -3,30 +3,6 @@ import numpy as np
 
 
 @nb.njit
-def _udd_correction(q_vec, j):
-    n_others = len(q_vec) - 1
-    others = np.empty(n_others)
-    idx = 0
-    for m in range(len(q_vec)):
-        if m != j:
-            others[idx] = q_vec[m]
-            idx += 1
-
-    correction = 1.0
-    for mask in range(1, 1 << n_others):
-        size = 0
-        product = 1.0
-        for b in range(n_others):
-            if mask & (1 << b):
-                size += 1
-                product *= others[b]
-        sign = 1 if (size % 2 == 0) else -1
-        correction += sign / (size + 1) * product
-
-    return correction
-
-
-@nb.njit
 def _cf_share(q_vec, j):
     mu_total = 0.0
     for m in range(len(q_vec)):
@@ -36,6 +12,19 @@ def _cf_share(q_vec, j):
         return 0.0
 
     return -np.log(1.0 - q_vec[j]) / mu_total
+
+
+@nb.njit
+def _udd_share(q_vec, j, s, w):
+    total = 0.0
+    for k in range(len(s)):
+        product = q_vec[j]
+        for m in range(len(q_vec)):
+            if m != j:
+                product *= 1.0 - s[k] * q_vec[m]
+        total += w[k] * product
+
+    return total
 
 
 @nb.njit(parallel=True)
@@ -57,7 +46,7 @@ def _compute_inf(qs):
 
 
 @nb.njit(parallel=True)
-def _compute_exits(qs, inf, method_id):
+def _compute_exits(qs, inf, method_id, s, w):
     k = qs.shape[0]
     n = qs.shape[1]
     t = qs.shape[2]
@@ -70,7 +59,7 @@ def _compute_exits(qs, inf, method_id):
 
             if method_id == 0:
                 for j in range(k):
-                    results[j, idx_n, idx_t] = q_vec[j] * prev * _udd_correction(q_vec, j)
+                    results[j, idx_n, idx_t] = prev * _udd_share(q_vec, j, s, w)
 
             else:
                 stay = 1.0
@@ -83,32 +72,11 @@ def _compute_exits(qs, inf, method_id):
     return results
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # warmup
 _qs = np.zeros((2, 2, 2))
 _inf = np.zeros((2, 2))
+_s = np.array([0.5])
+_w = np.array([1.0])
 _compute_inf(_qs)
-_compute_exits(_qs, _inf, 0)
-del _qs, _inf
+_compute_exits(_qs, _inf, 0, _s, _w)
+del _qs, _inf, _s, _w

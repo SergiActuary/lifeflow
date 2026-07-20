@@ -10,8 +10,8 @@ Built on numpy and numba — all calculations are vectorized as N × T grids, wh
 
 lifeflow lets the actuary define their own cash flows as plain Python functions. The library then automates:
 
-- **tINFx derivation** — policy in-force grid from any combination of decrements, with exact multiple-decrement formulas under UDD
-- **Exit grids** — per-cause exit rates, computed once and cached alongside the in-force
+- **tINFx derivation** — policy in-force grid from any combination of decrements
+- **Exit grids** — per-cause exit rates under UDD or constant force, exact for any number of causes, computed once and cached alongside the in-force
 - **Decrements** — mortality, lapse, disability or any rate vector, indexed by age, duration or any policy variable
 - **Portfolio extension** — cash flows written for a single policy broadcast automatically across the whole portfolio
 
@@ -106,7 +106,24 @@ lf.audit_grid(tINFx, portfolio, id_col="POLICY_ID", present_date="31/12/2025")
 
 ## Notes
 
-Exits are split under a **uniform distribution of decrements (UDD)** assumption, using the exact inclusion-exclusion correction rather than an approximation. The number of terms grows as `2^(K-1)` per cause, so `Inforce` warns above 6 decrements.
+`exit_by` splits the period's exits between the competing causes under one of two assumptions, chosen with `method`:
+
+| method | assumption | survival within the period |
+|---|---|---|
+| `"udd"` (default) | uniform distribution of decrements | `1 − s·q` (linear) |
+| `"cf"` | constant force | `(1−q)^s` (exponential) |
+
+Both are exact, not approximations. Which one to use is an actuarial choice, not a numerical one: within a period you only observe who entered and who left, never when. The two agree to about `1e-6` at typical monthly rates and diverge as rates grow.
+
+Under UDD the exit probability is
+
+```
+(aq)_j = q_j · ∫₀¹ Π_{m≠j} (1 − s·q_m) ds
+```
+
+which the engine evaluates by Gauss–Legendre quadrature. The integrand is a polynomial of degree `K−1`, so `⌈K/2⌉` nodes integrate it exactly — no error is introduced. The cost is `O(K³)` rather than the `O(K·2^K)` of the equivalent closed form, so there is no practical limit on the number of decrements.
+
+`docs/udd_integral.tex` derives the equivalence between the two formulations and measures the difference in cost. The closed form itself is kept in `tests/reference_udd.py` and used to validate the engine.
 
 ---
 

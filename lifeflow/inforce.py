@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 
 from lifeflow._inforce_nb import _compute_inf, _compute_exits
@@ -37,14 +35,12 @@ class Inforce:
             )
 
         if self._exits_method != method:
-            if method == "udd" and len(self.decrements) > 6:
-                warnings.warn(
-                    f"Inforce: UDD with {len(self.decrements)} decrements requires "
-                    f"{2 ** (len(self.decrements) - 1)} inclusion-exclusion terms per cause — "
-                    f"consider method='cf' instead",
-                    stacklevel=2,
-                )
-            self._exits        = _compute_exits(self._build_qs(), self.inf, METHODS[method])
+            n = -(-len(self.decrements) // 2)
+            x, w = np.polynomial.legendre.leggauss(n)
+            s = 0.5 * (x + 1.0)
+            w = 0.5 * w
+
+            self._exits        = _compute_exits(self._build_qs(), self.inf, METHODS[method], s, w)
             self._exits_method = method
 
         if decrement is None:

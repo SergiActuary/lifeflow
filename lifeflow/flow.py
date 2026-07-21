@@ -15,9 +15,23 @@ def extend_t(T):
     return decorator
 
 
-def grid(portfolio, timeline, *, n_jobs=-1, jit=False):
+PAYABLE = ("post", "pre")
+
+
+def grid(portfolio, timeline, *, n_jobs=-1, jit=False, payable="post"):
+    if payable not in PAYABLE:
+        raise ValueError(f"payable must be one of {PAYABLE}, got {payable!r}")
+
     T = timeline.horizon(portfolio)
     N = len(next(iter(portfolio.cols.values())))
+
+    # La fórmula del flujo la escribe el actuario: si es prepagable, usará t+1.
+    # Lo que no puede ver a ojo es que el último pago de cada póliza cae un
+    # período antes de su vencimiento, así que la vigencia se corre una columna.
+    pre = payable == "pre"
+    if pre:
+        mask = timeline.mask(portfolio)
+        vigencia = np.hstack([mask[:, 1:], np.zeros((N, 1), dtype=bool)])
 
     def decorator(f):
         params = list(inspect.signature(f).parameters.keys())[1:]  # skip 't'
@@ -36,7 +50,8 @@ def grid(portfolio, timeline, *, n_jobs=-1, jit=False):
             ]
 
             def wrapper():
-                return f_vec(t_grid, *p_grids)
+                out = f_vec(t_grid, *p_grids)
+                return out * vigencia if pre else out
 
         else:
             def compute_row(n):
@@ -49,8 +64,9 @@ def grid(portfolio, timeline, *, n_jobs=-1, jit=False):
                 )
                 arr = np.array(results)
                 if arr.ndim == 3:
-                    return tuple(arr[:, :, k] for k in range(arr.shape[2]))
-                return arr
+                    grids = tuple(arr[:, :, k] for k in range(arr.shape[2]))
+                    return tuple(g * vigencia for g in grids) if pre else grids
+                return arr * vigencia if pre else arr
 
         return wrapper
 

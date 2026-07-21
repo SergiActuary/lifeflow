@@ -22,10 +22,15 @@ class Inforce:
             ], axis=0)
         return self._qs
 
+    def _mask(self):
+        # todas las hipótesis comparten el mismo timeline, así que la máscara
+        # de cualquiera vale para la cartera entera
+        return self.decrements[0].timeline.mask(self.portfolio)
+
     @property
     def inf(self):
         if self._inf is None:
-            self._inf = _compute_inf(self._build_qs())
+            self._inf = _compute_inf(self._build_qs()) * self._mask()
         return self._inf
 
     def exit_by(self, decrement=None, method="udd"):

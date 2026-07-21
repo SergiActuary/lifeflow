@@ -4,6 +4,7 @@ import numpy as np
 import polars as pl
 
 from lifeflow import Inforce, Decrement, Portfolio, Timeline
+from lifeflow._inforce_nb import _compute_inf
 
 DURACIONES = [3, 5, 8, 6]
 T = 8
@@ -86,7 +87,11 @@ def test_exit_by_cf_seis_decrementos():
 
 def test_exits_suman_las_salidas_totales():
     portfolio, decrements, _ = _setup()
-    inf = Inforce(portfolio, decrements).inf
+    # El cierre es una propiedad del reparto sobre los vivos reales, así que se
+    # verifica con el in-force crudo. Inforce.inf() va enmascarado a cero fuera
+    # de contrato y su diferencia no representa salidas en la frontera.
+    inforce = Inforce(portfolio, decrements)
+    inf = _compute_inf(inforce._build_qs())
     previo = np.hstack([np.ones((len(DURACIONES), 1)), inf[:, :-1]])
 
     for metodo in ("udd", "cf"):
@@ -109,6 +114,21 @@ def test_celdas_fuera_de_contrato_son_cero():
                 f"metodo {metodo}, poliza {n} (plazo {duracion}): "
                 f"valores no nulos fuera de contrato:\n{fuera}"
             )
+
+
+def test_inforce_enmascarado_fuera_de_contrato():
+    portfolio, decrements, _ = _setup()
+    inf = Inforce(portfolio, decrements).inf
+
+    for n, duracion in enumerate(DURACIONES):
+        dentro = inf[n, :duracion]
+        fuera = inf[n, duracion:]
+        assert np.all(fuera == 0.0), (
+            f"poliza {n} (plazo {duracion}): in-force no nulo fuera de contrato:\n{fuera}"
+        )
+        assert np.all(dentro > 0.0), (
+            f"poliza {n} (plazo {duracion}): in-force nulo dentro de contrato"
+        )
 
 
 def test_cada_poliza_usa_sus_propios_datos():

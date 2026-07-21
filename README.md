@@ -66,6 +66,8 @@ exit_death = inforce.exit_by(qx)  # N × T
 exit_lapse = inforce.exit_by(wx)  # N × T
 ```
 
+`inf` is P(in-force): survival across all decrements (stochastic) combined with contract vigency (deterministic), so it is zero once the policy has expired.
+
 `exit_by()` with no argument returns all causes stacked as K × N × T.
 
 Cash flows are written for a single policy at a single instant. The `@grid` decorator extends them to the full N × T portfolio — every parameter after `t` is matched by name against a portfolio column:

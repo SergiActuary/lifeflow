@@ -12,10 +12,6 @@ class Decrement:
             return 0
         return portfolio.cols[self.index_var].astype(int)
 
-    def span(self, portfolio) -> int:
-        offset = self.resolve(portfolio)
-        return len(self.values) - np.max(offset)
-
     def grid(self, portfolio) -> np.ndarray:
         offset = self.resolve(portfolio)
         ts = self.timeline.grid(portfolio)

@@ -2,7 +2,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _cf_share(q_vec, j):
     mu_total = 0.0
     for m in range(len(q_vec)):
@@ -14,7 +14,7 @@ def _cf_share(q_vec, j):
     return -np.log(1.0 - q_vec[j]) / mu_total
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _udd_share(q_vec, j, s, w):
     total = 0.0
     for k in range(len(s)):
@@ -27,7 +27,7 @@ def _udd_share(q_vec, j, s, w):
     return total
 
 
-@nb.njit(parallel=True)
+@nb.njit(parallel=True, cache=True)
 def _compute_inf(qs):
     k = qs.shape[0]
     n = qs.shape[1]
@@ -45,7 +45,7 @@ def _compute_inf(qs):
     return result
 
 
-@nb.njit(parallel=True)
+@nb.njit(parallel=True, cache=True)
 def _compute_exits(qs, inf, method_id, s, w):
     k = qs.shape[0]
     n = qs.shape[1]

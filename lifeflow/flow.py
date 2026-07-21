@@ -5,6 +5,12 @@ from joblib import Parallel, delayed
 
 
 def extend_t(T):
+    """Evaluate a function over t = 1..T, returning a 1-D vector of length T.
+
+    For curves that do not vary by policy — a discount factor, an index.
+    Arguments after `t` are passed straight through on every call.
+    """
+
     def decorator(func):
         def wrapper(*args):
             result = np.zeros(T)
@@ -19,6 +25,20 @@ PAYABLE = ("post", "pre")
 
 
 def grid(portfolio, timeline, *, n_jobs=-1, jit=False, payable="post"):
+    """Extend a per-policy cash flow to the whole book. Returns N × T.
+
+    The decorated function is written for one policy at one instant: `t` runs
+    from 1 to T, and every argument after it is matched by name against a
+    portfolio column. Returning a tuple yields one grid per element.
+
+    `jit=True` compiles the function with numba for purely arithmetic flows;
+    the default runs them in parallel through joblib and accepts any Python.
+
+    `payable="pre"` marks a flow collected at the start of the period, whose
+    last payment therefore falls one period before the contract expires; it
+    trims the vigency accordingly. Writing the amount itself — `t + 1` where
+    the product calls for it — stays with the caller.
+    """
     if payable not in PAYABLE:
         raise ValueError(f"payable must be one of {PAYABLE}, got {payable!r}")
 

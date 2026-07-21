@@ -6,6 +6,12 @@ METHODS = {"udd": 0, "cf": 1}
 
 
 class Inforce:
+    """In-force and per-cause exit grids for a portfolio.
+
+    Takes any number of competing decrements. Both grids are computed on
+    first access and cached; asking for a different exit method recomputes.
+    """
+
     def __init__(self, portfolio, decrements):
         self.portfolio     = portfolio
         self.decrements    = decrements
@@ -29,11 +35,25 @@ class Inforce:
 
     @property
     def inf(self):
+        """P(in force) at the end of each period. Shape N × T.
+
+        Combines survival across all decrements with contract vigency, so it
+        drops to zero once a policy has expired rather than levelling off.
+        """
         if self._inf is None:
             self._inf = _compute_inf(self._build_qs()) * self._mask()
         return self._inf
 
     def exit_by(self, decrement=None, method="udd"):
+        """Exits during each period attributable to one cause. Shape N × T.
+
+        With no argument returns every cause stacked as K × N × T. These are
+        unconditional probabilities measured from the start of the projection,
+        so they multiply cash-flow grids directly.
+
+        `method` is how the period's exits are split between competing causes:
+        "udd" (uniform distribution of decrements) or "cf" (constant force).
+        """
         if method not in METHODS:
             raise ValueError(
                 f"method must be one of {tuple(METHODS)}, got {method!r}"

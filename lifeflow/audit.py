@@ -18,6 +18,12 @@ def _parse_date(s):
 
 
 def audit_grid(grid, portfolio, id_col=None, present_date=None):
+    """Dump a grid to a polars DataFrame for inspection, one row per policy.
+
+    `present_date` (dd/mm/yyyy) turns the column headers into the real month
+    ends being projected; without it they are t1, t2, ... A 1-D grid gives a
+    single value column.
+    """
     N = grid.shape[0]
 
     if id_col is not None:

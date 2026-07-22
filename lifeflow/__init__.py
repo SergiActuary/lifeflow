@@ -1,4 +1,4 @@
-__version__ = "0.0.3"
+__version__ = "0.1.0"
 
 from lifeflow.inforce import Inforce
 from lifeflow.decrement import Decrement

@@ -2,7 +2,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from lifeflow import Decrement, Inforce, Portfolio, Timeline
+from lifeflow import Decrement, Probabilities, Portfolio, Timeline
 
 
 def _df():
@@ -40,9 +40,9 @@ def test_selectid_aisla_la_poliza_y_sigue_siendo_proyectable():
 
     # lo que de verdad importa: el sub-portfolio se puede proyectar
     tl = Timeline("duration")
-    inforce = Inforce(sub, [Decrement(np.full(13, 0.01), tl)])
-    assert inforce.inf.shape == (1, 12)
-    assert np.isclose(inforce.inf[0, 0], 0.99)
+    inforce = Probabilities(sub, [Decrement(np.full(13, 0.01), tl)])
+    assert inforce.inforce.shape == (1, 12)
+    assert np.isclose(inforce.inforce[0, 0], 0.99)
 
 
 def test_selectid_conserva_el_id_col():

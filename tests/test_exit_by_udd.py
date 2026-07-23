@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from lifeflow import Inforce, Decrement, Portfolio, Timeline
+from lifeflow import Probabilities, Decrement, Portfolio, Timeline
 
 DATA = Path(__file__).parent / "datatest"
 
@@ -26,7 +26,7 @@ def test_exit_by_udd():
     exit_qx_ref = df["exit_by_qx"].to_numpy()
     exit_wx_ref = df["exit_by_wx"].to_numpy()
 
-    inf = Inforce(portfolio, [qx_dec, wx_dec])
+    inf = Probabilities(portfolio, [qx_dec, wx_dec])
 
     exit_qx = inf.exit_by(qx_dec, method="udd")[0]
     exit_wx = inf.exit_by(wx_dec, method="udd")[0]

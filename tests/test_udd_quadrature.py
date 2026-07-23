@@ -12,7 +12,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from lifeflow import Decrement, Inforce, Portfolio, Timeline
+from lifeflow import Decrement, Probabilities, Portfolio, Timeline
 from lifeflow._inforce_nb import _compute_exits, _compute_inf
 
 from tests.reference_udd import compute_exits_udd
@@ -55,9 +55,9 @@ def test_exit_by_reproduce_inclusion_exclusion(K):
     tl = Timeline("duration")
     decrements = [Decrement(qs[k, 0, :], tl) for k in range(K)]
 
-    inforce = Inforce(portfolio, decrements)
+    inforce = Probabilities(portfolio, decrements)
     motor = inforce.exit_by(method="udd")
-    desarrollo = compute_exits_udd(inforce._build_qs(), inforce.inf)
+    desarrollo = compute_exits_udd(inforce._build_qs(), inforce.inforce)
 
     assert np.allclose(motor, desarrollo, rtol=1e-11, atol=0), (
         f"K={K}: diferencia máxima {np.max(np.abs(motor - desarrollo))}"

@@ -1,6 +1,6 @@
 __version__ = "0.1.0"
 
-from lifeflow.inforce import Inforce
+from lifeflow.probabilities import Probabilities
 from lifeflow.decrement import Decrement
 from lifeflow.portfolio import Portfolio
 from lifeflow.timeline import Timeline

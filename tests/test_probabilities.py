@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import polars as pl
 
-from lifeflow import Inforce, Decrement, Portfolio, Timeline
+from lifeflow import Probabilities, Decrement, Portfolio, Timeline
 
 DATA = Path(__file__).parent / "datatest"
 
@@ -25,7 +25,7 @@ def test_inforce():
     portfolio, qx_dec, wx_dec, df = _setup()
     inf_ref = df["inf"].to_numpy()
 
-    inforce = Inforce(portfolio, [qx_dec, wx_dec]).inf[0]
+    inforce = Probabilities(portfolio, [qx_dec, wx_dec]).inforce[0]
 
     assert np.allclose(inforce, inf_ref, rtol=1e-10), (
         f"Diferencias:\n{inforce - inf_ref}"

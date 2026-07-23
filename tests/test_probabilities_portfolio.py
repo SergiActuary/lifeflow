@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 import polars as pl
 
-from lifeflow import Inforce, Decrement, Portfolio, Timeline
+from lifeflow import Probabilities, Decrement, Portfolio, Timeline
 from lifeflow._inforce_nb import _compute_inf
 
 DURACIONES = [3, 5, 8, 6]
@@ -60,7 +60,7 @@ def _qs_poliza(qv, duracion):
 def _exits(portfolio, decrements, metodo):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        return Inforce(portfolio, decrements).exit_by(method=metodo)
+        return Probabilities(portfolio, decrements).exit_by(method=metodo)
 
 
 def test_exit_by_udd_seis_decrementos():
@@ -88,9 +88,9 @@ def test_exit_by_cf_seis_decrementos():
 def test_exits_suman_las_salidas_totales():
     portfolio, decrements, _ = _setup()
     # El cierre es una propiedad del reparto sobre los vivos reales, así que se
-    # verifica con el in-force crudo. Inforce.inf() va enmascarado a cero fuera
+    # verifica con el in-force crudo. Probabilities.inforce() va enmascarado a cero fuera
     # de contrato y su diferencia no representa salidas en la frontera.
-    inforce = Inforce(portfolio, decrements)
+    inforce = Probabilities(portfolio, decrements)
     inf = _compute_inf(inforce._build_qs())
     previo = np.hstack([np.ones((len(DURACIONES), 1)), inf[:, :-1]])
 
@@ -118,7 +118,7 @@ def test_celdas_fuera_de_contrato_son_cero():
 
 def test_inforce_enmascarado_fuera_de_contrato():
     portfolio, decrements, _ = _setup()
-    inf = Inforce(portfolio, decrements).inf
+    inf = Probabilities(portfolio, decrements).inforce
 
     for n, duracion in enumerate(DURACIONES):
         dentro = inf[n, :duracion]

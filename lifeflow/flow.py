@@ -1,7 +1,6 @@
 import inspect
 
 import numpy as np
-from joblib import Parallel, delayed
 
 
 def extend_t(T):
@@ -24,15 +23,17 @@ def extend_t(T):
 PAYABLE = ("post", "pre")
 
 
-def grid(portfolio, timeline, *, n_jobs=-1, jit=False, payable="post"):
+def grid(portfolio, timeline, *, jit=False, payable="post"):
     """Extend a per-policy cash flow to the whole book. Returns N × T.
 
     The decorated function is written for one policy at one instant: `t` runs
     from 1 to T, and every argument after it is matched by name against a
     portfolio column. Returning a tuple yields one grid per element.
 
-    `jit=True` compiles the function with numba for purely arithmetic flows;
-    the default runs them in parallel through joblib and accepts any Python.
+    Runs as plain Python by default and accepts any flow, tuple returns
+    included. `jit=True` compiles the flow with numba — far faster on large
+    books after a one-off compilation, but only for purely arithmetic
+    functions returning a single grid.
 
     `payable="pre"` marks a flow collected at the start of the period, whose
     last payment therefore falls one period before the contract expires; it
@@ -79,9 +80,7 @@ def grid(portfolio, timeline, *, n_jobs=-1, jit=False, payable="post"):
                 return [f(t, *scalars) for t in range(1, T + 1)]
 
             def wrapper():
-                results = Parallel(n_jobs=n_jobs)(
-                    delayed(compute_row)(n) for n in range(N)
-                )
+                results = [compute_row(n) for n in range(N)]
                 arr = np.array(results)
                 if arr.ndim == 3:
                     grids = tuple(arr[:, :, k] for k in range(arr.shape[2]))

@@ -16,8 +16,6 @@ polinomio de grado K-1.
 
 Al ser dos caminos de cálculo distintos sobre la misma definición, un error
 en cualquiera de los dos rompe la coincidencia.
-
-Ver docs/udd_integral.tex para la demostración de la equivalencia.
 """
 
 import numba as nb

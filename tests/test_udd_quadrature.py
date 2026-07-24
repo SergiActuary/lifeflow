@@ -4,8 +4,6 @@ Ambos resuelven la misma integral por caminos distintos: reference_udd la
 desarrolla algebraicamente en 2^(K-1) términos, el motor la evalúa en
 ceil(K/2) nodos de Gauss-Legendre. Como el integrando es un polinomio de
 grado K-1, la cuadratura es exacta y ambos deben coincidir.
-
-Ver docs/udd_integral.tex.
 """
 
 import numpy as np

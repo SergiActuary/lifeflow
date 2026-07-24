@@ -158,7 +158,7 @@ Under UDD the exit probability is
 
 which the engine evaluates by Gauss–Legendre quadrature. The integrand is a polynomial of degree `K−1`, so `⌈K/2⌉` nodes integrate it exactly — no error is introduced. The cost is `O(K³)` rather than the `O(K·2^K)` of the equivalent closed form, so there is no practical limit on the number of decrements.
 
-`docs/udd_integral.tex` derives the equivalence between the two formulations and measures the difference in cost. The closed form itself is kept in `tests/reference_udd.py` and used to validate the engine.
+The closed form is kept in `tests/reference_udd.py` and used to validate the engine.
 
 ---
 

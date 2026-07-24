@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [
     { name = "SergiActuary" },
 ]
-keywords = ["actuarial", "life-insurance", "cashflow", "BEL", "numpy"]
+keywords = ["actuarial", "actuary", "life-insurance", "cashflow", "BEL", "mortality-tables", "actuarial-modeling", "numpy"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Financial and Insurance Industry",

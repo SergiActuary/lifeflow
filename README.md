@@ -1,5 +1,10 @@
 # lifeflow
 
+[![PyPI](https://img.shields.io/pypi/v/lifeflow)](https://pypi.org/project/lifeflow/)
+[![Python](https://img.shields.io/pypi/pyversions/lifeflow)](https://pypi.org/project/lifeflow/)
+[![Tests](https://github.com/SergiActuary/lifeflow/actions/workflows/tests.yml/badge.svg)](https://github.com/SergiActuary/lifeflow/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Python library for life actuarial cash-flow calculations and BEL.
 
 Built on numpy and numba — all calculations are vectorized as N × T grids, where N is the number of policies and T is the time horizon. The decrement engine is JIT-compiled with numba, and cash flows can be compiled too.
@@ -27,6 +32,39 @@ The result of every object is a plain numpy array of shape N × T, inspectable a
 ```bash
 pip install lifeflow
 ```
+
+---
+
+## Quickstart
+
+Compute the BEL of a small book in a few lines — define your own cash flows as
+plain Python, and the library vectorizes them across the whole portfolio:
+
+```python
+import numpy as np, polars as pl, lifeflow as lf
+
+df = pl.DataFrame({"id": [1, 2], "age": [480, 540],
+                   "term": [120, 180], "capital": [100_000.0, 250_000.0]})
+
+port = lf.Portfolio(df, id_col="id")
+tl   = lf.Timeline("term")                                # each policy's own horizon
+qx   = lf.Decrement(np.full(1200, 0.001), tl, index_var="age")
+prob = lf.Probabilities(port, [qx])                       # in-force and exit grids
+
+@lf.grid(port, tl)
+def death_benefit(t, capital):
+    return capital
+
+@lf.grid(port, tl)
+def discount(t):
+    return 1.02 ** (-t / 12)
+
+bel = (prob.exit_by(qx) * death_benefit() * discount()).sum(axis=1)
+print(bel)   # BEL per policy
+```
+
+See the [full worked example](https://sergiactuary.github.io/lifeflow/) for a
+realistic mixed-endowment portfolio.
 
 ---
 

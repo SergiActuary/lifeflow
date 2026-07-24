@@ -2,7 +2,9 @@
 
 Python library for life actuarial cash-flow calculations and BEL.
 
-Built on numpy and numba — all calculations are vectorized as N × T grids, where N is the number of policies and T is the time horizon. The decrement engine runs in parallel across policies via JIT compilation.
+Built on numpy and numba — all calculations are vectorized as N × T grids, where N is the number of policies and T is the time horizon. The decrement engine is JIT-compiled with numba, and cash flows can be compiled too.
+
+A worked end-to-end example — computing the BEL of a portfolio of mixed endowments — is published at **<https://sergiactuary.github.io/lifeflow/>** (source in [`docs/example.qmd`](docs/example.qmd)).
 
 ---
 
@@ -57,17 +59,17 @@ wx = lf.Decrement(wx_monthly, tl, index_var="age_months")
 
 Splitting annual rates to a monthly grid is a one-line numpy operation and is left to the caller — `1 − (1−q)**(1/12)` repeated over each year for a decrement, `(1+i)**(1/12) − 1` for a rate that compounds upward.
 
-`Inforce` derives the in-force grid and the exits by cause. Both are computed lazily and cached:
+`Probabilities` derives the in-force grid and the exits by cause. Both are computed lazily and cached:
 
 ```python
-inforce = lf.Inforce(portfolio, [qx, wx])
+prob = lf.Probabilities(portfolio, [qx, wx])
 
-tINFx      = inforce.inf          # N × T
-exit_death = inforce.exit_by(qx)  # N × T
-exit_lapse = inforce.exit_by(wx)  # N × T
+tINFx      = prob.inforce       # N × T
+exit_death = prob.exit_by(qx)   # N × T
+exit_lapse = prob.exit_by(wx)   # N × T
 ```
 
-`inf` is P(in-force): survival across all decrements (stochastic) combined with contract vigency (deterministic), so it is zero once the policy has expired.
+`inforce` is P(in-force): survival across all decrements (stochastic) combined with contract vigency (deterministic), so it is zero once the policy has expired.
 
 `exit_by()` with no argument returns all causes stacked as K × N × T.
 
@@ -87,7 +89,7 @@ bel = (exit_death * death_benefit() * discount()).sum(axis=1)
 
 **`t` runs from 1 to T, not from 0.** The present is never a projection period: the first column is one period into the future, already discounted. Every part of the library follows this — `@grid`, `@extend_t`, and the duration functions in `alm`.
 
-Use `jit=True` for purely mathematical flows: the function is compiled with `numba.vectorize` and runs over the grid with no Python loop. For flows that need arbitrary Python (lookups, branching on objects), leave the default `jit=False` and the rows are computed in parallel via joblib (`n_jobs=-1`). A flow returning a tuple yields one N × T grid per element.
+Use `jit=True` for purely mathematical flows: the function is compiled with `numba.vectorize` and runs over the grid with no Python loop. For flows that need arbitrary Python (lookups, branching on objects), leave the default `jit=False` and the rows are computed as plain sequential Python. A flow returning a tuple yields one N × T grid per element (supported on the default `jit=False` path).
 
 ### Prepayable flows
 

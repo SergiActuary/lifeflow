@@ -27,3 +27,10 @@ notebook/
 .zed/
 .claude/
 CLAUDE.md
+
+/.quarto/
+**/*.quarto_ipynb*
+
+# renders locales de Quarto (el publicado va a la rama gh-pages)
+/docs/*.html
+/docs/*_files/

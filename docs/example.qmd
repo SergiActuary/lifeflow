@@ -1,0 +1,214 @@
+---
+title: "Computing the BEL of a portfolio with lifeflow"
+author: "Sergi"
+date: today
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-title: "Contents"
+    code-fold: false
+    theme: cosmo
+jupyter: python3
+---
+
+## The product
+
+We value a **mixed endowment**: a policy that pays
+
+- a **survival benefit** if the insured is alive at maturity, and
+- a **death benefit** if they die before then.
+
+The insured pays **premiums** while the contract is in force, and the insurer
+incurs management **expenses**. We assume no **lapses** (no surrenders). The
+Best Estimate Liability (BEL) is the present value of what the insurer expects
+to pay out, less what it expects to collect:
+
+$$
+\text{BEL} = \text{PV}_{\text{survival}} + \text{PV}_{\text{death}}
+           + \text{PV}_{\text{expenses}} - \text{PV}_{\text{premiums}}
+$$
+
+Every term has the same shape —amount × probability × discount, summed over
+time— and they differ only in four choices, which we'll walk through.
+
+## Data and assumptions
+
+We load the portfolio and keep the men. Each row is a policy; its columns
+(sums assured, premiums, technical rate, age in months, duration…) are what the
+library projects from.
+
+A key idea when using lifeflow: every policy in a `Portfolio` **shares the same
+actuarial assumptions** — the same survival/death table, the same lapse
+assumption, and so on. An assumption is a single **vector**; per policy it is
+adjusted only at its **start** (where it begins reading the table) and its
+**end** (where the contract expires), but every policy draws from that same
+vector. That is why we split the book before projecting: policies that need a
+different table belong to a different `Portfolio`.
+
+```{python}
+import polars as pl
+import numpy as np
+import lifeflow as lf
+
+df = pl.read_parquet("data/example_lifeflow.parquet")
+df_m = df.filter(pl.col("sexo") == "H")
+df_m.head(10)
+```
+
+The mortality table comes at **annual** frequency, but the projection is
+monthly. We monthlyize it under constant force —convert the rate *first*, then
+repeat it, never the other way around— so that the annual mortality is
+preserved exactly:
+
+```{python}
+qx_m = pl.read_csv("data/hypotheses/qx_TEST_M.csv")["qx"].to_numpy()
+qx_m = np.repeat(1 - (1 - qx_m) ** (1 / 12), 12)
+qx_m.shape
+```
+
+## The engine: probabilities
+
+Three objects build the engine. `Portfolio` wraps the `df`; `Timeline` reads
+each policy's term from a column (it sets the horizon and masks out policies
+that have already matured); `Decrement` is the mortality table, indexed by each
+policy's age in months.
+
+```{python}
+pfl = lf.Portfolio(df_m, id_col="poliza_id")
+tl = lf.Timeline("duration_end")
+qx = lf.Decrement(qx_m, tl, index_var="age")
+```
+
+`Probabilities` combines everything and gives us the two probabilities we need,
+each a grid of N policies × T months:
+
+```{python}
+prob = lf.Probabilities(pfl, [qx])
+tpx = prob.inforce             # P(still in force) at the end of each month
+exit_death = prob.exit_by(qx)  # P(dies) during each month
+
+tpx.shape, exit_death.shape
+```
+
+## The cash flows
+
+Each flow is written with `@lf.grid`: a function for **one policy in one
+month**, which the library extends to the whole book. The arguments after `t`
+are matched by name against the columns of the `df`. We set `jit=True` to
+compile with numba —all five functions are pure arithmetic, so it flies.
+
+First the **discount factor**, which depends on each policy's technical rate:
+
+```{python}
+@lf.grid(pfl, tl, jit=True)
+def discount(t, tipo_interes_tecnico):
+    r = (1 + tipo_interes_tecnico) ** (1 / 12) - 1
+    return (1 + r) ** (-t)
+
+v = discount()
+v
+```
+
+The **survival benefit**. It is paid only at maturity (`t == duration_end`);
+every other month is zero. The amount is the initial sum assured with its
+annual increase, the year anchored at the policy's issue date:
+
+```{python}
+@lf.grid(pfl, tl, jit=True)
+def capital_sup(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,
+                duration_if, duration_end):
+    if t != duration_end:
+        return 0.0
+    year = (duration_if + t - 1) // 12
+    return capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year
+
+cap_sup = capital_sup()
+cap_sup
+```
+
+The **death benefit**. Same as above, but without the `if`: it can be paid in
+any month, so it returns the amount in all of them.
+
+```{python}
+@lf.grid(pfl, tl, jit=True)
+def capital_death(t, capital_fallecimiento_inicial, tasa_revalorizacion_fallecimiento,
+                  duration_if):
+    year = (duration_if + t - 1) // 12
+    return capital_fallecimiento_inicial * (1 + tasa_revalorizacion_fallecimiento) ** year
+
+cap_death = capital_death()
+cap_death
+```
+
+The **premiums**. A premium is due only in the months when an installment
+falls, and they are **payable in advance** (`payable="pre"`): the installment
+that would fall at maturity is not collected, and the library takes care of
+that.
+
+```{python}
+@lf.grid(pfl, tl, payable="pre", jit=True)
+def prima(t, prima_anual_inicial, tasa_revalorizacion_prima, frecuencia_pago, duration_if):
+    periodo = 12 // frecuencia_pago
+    if (duration_if + t) % periodo != 0:
+        return 0.0
+    year = (duration_if + t - 1) // 12
+    return prima_anual_inicial * (1 + tasa_revalorizacion_prima) ** year / frecuencia_pago
+
+premium = prima()
+```
+
+The **expenses**: an annual percentage of the (revalued) survival sum assured,
+converted to a monthly charge.
+
+```{python}
+@lf.grid(pfl, tl, jit=True)
+def gasto(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,
+          tasa_gasto_sobre_capital, duration_if):
+    year = (duration_if + t - 1) // 12
+    capital = capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year
+    return capital * ((1 + tasa_gasto_sobre_capital) ** (1 / 12) - 1)
+
+expenses = gasto()
+```
+
+In short, each flow answers four questions:
+
+| flow | amount | probability | active months |
+|---|---|---|---|
+| survival | revalued sum assured | still in force | maturity only |
+| death | revalued sum assured | dies that month | every month |
+| premiums | premium / frequency | still in force | installment months (in advance) |
+| expenses | % of sum assured | still in force | every month |
+
+## The BEL
+
+We weight each amount by its probability, discount it, and sum over time. The
+result is the BEL of **each policy** (`axis=1` collapses the months):
+
+```{python}
+sup_flow      = cap_sup   * tpx
+death_flow    = cap_death * exit_death
+premium_flow  = premium   * tpx
+expenses_flow = expenses  * tpx
+
+provision_flow = sup_flow + death_flow + expenses_flow - premium_flow
+vaa_provision  = provision_flow * v
+
+bel_per_policy = vaa_provision.sum(axis=1)
+bel_per_policy[:10]
+```
+
+The total BEL of the male portfolio:
+
+```{python}
+print(f"Portfolio BEL (men): {bel_per_policy.sum():,.2f} €  ({len(bel_per_policy)} policies)")
+```
+
+And the portfolio's provision profile month by month (`axis=0` collapses the
+policies instead of time), useful to see the run-off:
+
+```{python}
+portfolio_flow = vaa_provision.sum(axis=0)
+portfolio_flow[:12]
+```

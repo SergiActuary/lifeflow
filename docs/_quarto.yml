@@ -5,8 +5,11 @@ project:
 
 website:
   title: "lifeflow"
+  description: "Fast, vectorized Python library for life-insurance cash-flow projection and BEL."
   site-url: "https://sergiactuary.github.io/lifeflow/"
   repo-url: "https://github.com/SergiActuary/lifeflow"
+  open-graph: true
+  twitter-card: true
   navbar:
     background: primary
     search: true

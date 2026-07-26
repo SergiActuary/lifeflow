@@ -1,5 +1,6 @@
 ---
 title: "Guide — computing the BEL of a portfolio"
+description: "A worked, end-to-end example: computing the Best Estimate Liability (BEL) of a life-insurance portfolio (mixed endowment) with lifeflow, step by step in Python."
 toc: true
 toc-title: "Contents"
 ---

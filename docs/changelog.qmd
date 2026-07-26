@@ -1,5 +1,6 @@
 ---
 title: "Changelog"
+description: "Release notes and version history for the lifeflow Python actuarial library."
 toc: true
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: "API reference"
+description: "API reference for lifeflow — Portfolio, Timeline, Decrement, Probabilities, the @grid decorator, and duration & convexity."
 toc: true
 ---
 

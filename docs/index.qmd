@@ -1,5 +1,6 @@
 ---
-pagetitle: "lifeflow — vectorized life actuarial engine"
+pagetitle: "lifeflow — Python life actuarial cash-flow & BEL engine"
+description: "lifeflow is a fast, vectorized Python library for life-insurance cash-flow projection and Best Estimate Liability (BEL): automate reserve calculations and project your own cash flows, efficiently with numba."
 page-layout: full
 toc: false
 ---

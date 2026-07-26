@@ -59,5 +59,5 @@ bel = (prob.exit_by(qx) * death_benefit() * discount()).sum(axis=1)
 print(bel)   # BEL per policy
 ```
 
-Head to the [**Guía**](example.qmd) for a full, worked mixed-endowment portfolio,
-or the [**Referencia**](referencia.qmd) for the API.
+Head to the [**Guide**](example.qmd) for a full, worked mixed-endowment portfolio,
+or the [**Reference**](reference.qmd) for the API.

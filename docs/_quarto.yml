@@ -12,11 +12,11 @@ website:
     search: true
     left:
       - href: index.qmd
-        text: Inicio
+        text: Home
       - href: example.qmd
-        text: Guía
-      - href: referencia.qmd
-        text: Referencia
+        text: Guide
+      - href: reference.qmd
+        text: Reference
       - href: changelog.qmd
         text: Changelog
     right:

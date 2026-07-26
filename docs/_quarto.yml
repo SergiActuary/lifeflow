@@ -4,7 +4,7 @@ project:
   execute-dir: project
 
 website:
-  title: "lifeflow"
+  title: "LifeFlow"
   description: "Fast, vectorized Python library for life-insurance cash-flow projection and BEL."
   site-url: "https://sergiactuary.github.io/lifeflow/"
   repo-url: "https://github.com/SergiActuary/lifeflow"
@@ -23,9 +23,8 @@ website:
       - href: changelog.qmd
         text: Changelog
     right:
-      - icon: github
+      - text: GitHub
         href: https://github.com/SergiActuary/lifeflow
-        aria-label: GitHub
       - text: PyPI
         href: https://pypi.org/project/lifeflow/
   page-footer:

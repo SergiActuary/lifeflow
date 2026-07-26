@@ -1,6 +1,6 @@
 ---
-pagetitle: "lifeflow — Python life actuarial cash-flow & BEL engine"
-description: "lifeflow is a fast, vectorized Python library for life-insurance cash-flow projection and Best Estimate Liability (BEL): automate reserve calculations and project your own cash flows, efficiently with numba."
+pagetitle: "LifeFlow — Python life actuarial cash-flow & BEL engine"
+description: "LifeFlow is a fast, vectorized Python library for life-insurance cash-flow projection and Best Estimate Liability (BEL): automate reserve calculations and project your own cash flows, efficiently with numba."
 page-layout: full
 toc: false
 ---
@@ -9,11 +9,10 @@ toc: false
 <section class="lf-hero">
   <div class="lf-hero-inner">
     <div class="lf-hero-text">
-      <div class="lf-eyebrow">// life actuarial engine · python</div>
-      <h1>lifeflow<span class="dot">.</span></h1>
+      <h1>LifeFlow<span class="dot">.</span></h1>
       <p class="lf-tagline">
         Project life-insurance cash flows and compute the BEL. Write your own
-        flows as plain Python; lifeflow vectorizes them across the whole
+        flows as plain Python; LifeFlow vectorizes them across the whole
         portfolio as <strong>N × T</strong> grids and compiles the hot paths
         with numba.
       </p>
@@ -36,12 +35,12 @@ port = lf.Portfolio(df, <span class="s">"id"</span>)
 prob = lf.Probabilities(port, [qx])
 
 <span class="k">@lf.grid</span>(port, tl)
-<span class="k">def</span> death(t, capital):
+<span class="k">def</span> death_capital(t, capital):
     <span class="k">return</span> capital
 
 <span class="c"># BEL per policy</span>
 bel = (prob.exit_by(qx)
-       * death()).sum(axis=<span class="s">1</span>)</code></pre>
+       * death_capital()).sum(axis=<span class="s">1</span>)</code></pre>
     </div>
   </div>
 </section>
@@ -50,84 +49,71 @@ bel = (prob.exit_by(qx)
   <h2>What it does</h2>
   <p class="sub">The standard building blocks for life reserves — automated, and fast.</p>
   <div class="lf-grid3">
+
     <div class="lf-card">
-      <div class="ic">🛡️</div>
+      <div class="lf-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v16a1 1 0 0 0 1 1h16"/><path d="M4 8c8 0 8 10 16 10"/></svg>
+      </div>
       <h3>Reserve building blocks</h3>
       <p>Automates the standard calculations behind mathematical reserves across
       frameworks — the in-force grid, and the probability of staying in force to a
       period and then exiting by a cause — through a clean object-oriented API.</p>
     </div>
+
     <div class="lf-card">
-      <div class="ic">🧩</div>
+      <div class="lf-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v3.5a2 2 0 0 1-2 2 2 2 0 0 1 2 2V16a2 2 0 0 0 2 2h1"/><path d="M16 3h1a2 2 0 0 1 2 2v3.5a2 2 0 0 0 2 2 2 2 0 0 0-2 2V16a2 2 0 0 1-2 2h-1"/></svg>
+      </div>
       <h3>Cash flows by decorator</h3>
       <p>Design and project payment flows the easy way: ready-made decorators take
       a flow written for a single policy and project it across the whole
       portfolio.</p>
     </div>
+
     <div class="lf-card">
-      <div class="ic">⚡</div>
+      <div class="lf-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+      </div>
       <h3>Fast by design</h3>
       <p>Built for computational efficiency with numba, so projecting large life
       portfolios stays fast — the engine keeps up, it isn't the bottleneck.</p>
     </div>
+
   </div>
 </section>
 
-<section class="lf-section">
-  <div class="lf-note">
-    <div class="lf-note-eyebrow">// the philosophy</div>
-    <h2>A complement to numpy, not a replacement</h2>
-    <p>lifeflow doesn't box you into closed-form formulas. It gives the actuary a
+<section class="lf-band">
+  <div class="lf-band-inner">
+    <div class="lf-band-tag">complement · not a replacement</div>
+    <h2>LifeFlow works <em>with</em> numpy, not instead of it</h2>
+    <p class="lf-band-lead">LifeFlow doesn't box you into closed-form formulas. It gives the actuary a
     small set of tools — an object-oriented engine for in-force and exit
     probabilities, and decorators to project cash flows — so you keep
     <strong>total control of the numbers</strong> while the boilerplate and the
     performance are taken care of.</p>
-    <p>Ideal for moving <strong>Excel calculations to Python</strong> and
-    standardizing them into a calculation flow that is easy to design,
-    reproducible and fast.</p>
+    <div class="lf-band-split">
+      <div class="lf-band-col">
+        <div class="lf-band-k">numpy</div>
+        <p>The arrays and the maths.</p>
+      </div>
+      <div class="lf-band-arrow">+</div>
+      <div class="lf-band-col">
+        <div class="lf-band-k">LifeFlow</div>
+        <p>The actuarial structure and the speed.</p>
+      </div>
+    </div>
+    <p class="lf-band-foot">Ideal for moving <strong>Excel calculations to
+    Python</strong> and standardizing them into a calculation flow that is easy to
+    design, reproducible and fast.</p>
   </div>
 </section>
-```
 
-## Quickstart
-
-Compute the BEL of a small book in a few lines — every result is a plain numpy
-array of shape `N × T`, inspectable at any step:
-
-```python
-import numpy as np, polars as pl, lifeflow as lf
-
-df = pl.DataFrame({"id": [1, 2], "age": [480, 540],
-                   "term": [120, 180], "capital": [100_000.0, 250_000.0]})
-
-port = lf.Portfolio(df, id_col="id")
-tl   = lf.Timeline("term")                                # each policy's own horizon
-qx   = lf.Decrement(np.full(1200, 0.001), tl, index_var="age")
-prob = lf.Probabilities(port, [qx])                       # in-force and exit grids
-
-@lf.grid(port, tl)
-def death_benefit(t, capital):
-    return capital
-
-@lf.grid(port, tl)
-def discount(t):
-    return 1.02 ** (-t / 12)
-
-bel = (prob.exit_by(qx) * death_benefit() * discount()).sum(axis=1)
-print(bel)   # BEL per policy
-```
-
-Head to the [**Guide**](example.qmd) for a full, worked mixed-endowment
-portfolio, or the [**Reference**](reference.qmd) for the API.
-
-```{=html}
 <section class="lf-section">
   <div class="lf-author">
     <div class="lf-author-avatar">SA</div>
     <div class="lf-author-text">
-      <div class="lf-note-eyebrow">// the author</div>
       <h3>Built by SergiActuary</h3>
-      <p>Actuary from Barcelona who likes to build things. lifeflow is my project
+      <p>Actuary from Barcelona who likes to build things. LifeFlow is my project
       to bring life-insurance calculations out of Excel and into fast,
       reproducible Python.</p>
       <a class="lf-btn lf-btn-ghost" href="https://sergiactuary.github.io/">Visit my site →</a>

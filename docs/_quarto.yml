@@ -29,7 +29,8 @@ website:
       - text: PyPI
         href: https://pypi.org/project/lifeflow/
   page-footer:
-    center: "lifeflow · MIT License · Sergi López Vergara"
+    left: "lifeflow · MIT License"
+    right: "Built by [Sergi López Vergara](https://sergiactuary.github.io/)"
 
 format:
   html:

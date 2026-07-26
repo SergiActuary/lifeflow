@@ -95,3 +95,20 @@ $accent: #3a5bd9;
 .lf-note h2 { text-align: center; margin-bottom: 16px; border: none; }
 .lf-note p { color: #4a566e; max-width: 640px; margin: 0 auto 12px; font-size: 1.02rem; }
 .lf-note p:last-child { margin-bottom: 0; }
+
+/* ===== AUTHOR ===== */
+.lf-author {
+  max-width: 760px; margin: 0 auto;
+  display: flex; align-items: center; gap: 26px;
+  background: #fff; border: 1px solid #e2e8f2; border-radius: 16px; padding: 30px 34px;
+}
+@media (max-width: 640px) { .lf-author { flex-direction: column; text-align: center; gap: 18px; } }
+.lf-author-avatar {
+  flex-shrink: 0; width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #3a5bd9, #6d8bff); color: #fff;
+  font-weight: 700; font-size: 1.3rem; font-family: $font-family-monospace; letter-spacing: .02em;
+}
+.lf-author-text { flex: 1; }
+.lf-author-text h3 { font-size: 1.12rem; font-weight: 700; margin-bottom: 4px; border: none; }
+.lf-author-text p { color: #5a6782; font-size: .95rem; margin: 0 0 14px; }

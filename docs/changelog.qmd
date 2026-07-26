@@ -1,0 +1,28 @@
+---
+title: "Changelog"
+toc: true
+---
+
+Release notes for **lifeflow**. Versions follow [semantic versioning](https://semver.org/).
+
+## 0.1.1
+
+- Added the documentation URL and Python 3.12 / 3.13 classifiers to the package
+  metadata.
+
+## 0.1.0
+
+First public release.
+
+- **`Probabilities`** — in-force grid and per-cause exit grids for a portfolio,
+  from any number of competing decrements.
+- **`Decrement`** — a rate vector (mortality, lapse, …) indexed by any policy
+  variable.
+- **`Portfolio`** / **`Timeline`** — the book of policies and the projection
+  horizon, each policy masked past its own contract boundary.
+- **`@grid`** — write a cash flow for one policy at one instant; it broadcasts
+  across the whole book. `payable="pre"` for prepayable flows; `jit=True` to
+  compile with numba.
+- **`alm`** — Macaulay and Hicks duration, and convexity, over a spot curve.
+- Exit splitting under **UDD** or **constant force**, exact for any number of
+  causes via Gauss–Legendre quadrature.

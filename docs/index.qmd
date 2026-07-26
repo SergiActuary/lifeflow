@@ -1,0 +1,63 @@
+---
+title: "lifeflow"
+subtitle: "Vectorized life actuarial cash-flow and BEL engine"
+toc: false
+---
+
+**lifeflow** is a Python library for life actuarial cash-flow projection and
+Best Estimate Liability (BEL). You define your own cash flows as plain Python
+functions; the library vectorizes them across the whole portfolio as `N × T`
+grids (N policies, T months) and compiles the hot paths with numba.
+
+[Get started →](example.qmd){.btn .btn-primary}
+&nbsp;
+[View on GitHub](https://github.com/SergiActuary/lifeflow){.btn .btn-outline-secondary}
+
+## What it does
+
+- **In-force & exits** — the policy in-force grid from any combination of
+  competing decrements, and per-cause exit rates under UDD or constant force,
+  exact for any number of causes.
+- **Your own cash flows** — write a flow for one policy at one instant; the
+  `@grid` decorator broadcasts it across the whole book.
+- **Interest-rate sensitivity** — Macaulay and Hicks duration, and convexity,
+  over a spot curve.
+
+Every result is a plain numpy array of shape `N × T`, inspectable at any step.
+
+## Installation
+
+```bash
+pip install lifeflow
+```
+
+## Quickstart
+
+Compute the BEL of a small book in a few lines — define your own cash flows as
+plain Python, and the library vectorizes them across the portfolio:
+
+```python
+import numpy as np, polars as pl, lifeflow as lf
+
+df = pl.DataFrame({"id": [1, 2], "age": [480, 540],
+                   "term": [120, 180], "capital": [100_000.0, 250_000.0]})
+
+port = lf.Portfolio(df, id_col="id")
+tl   = lf.Timeline("term")                                # each policy's own horizon
+qx   = lf.Decrement(np.full(1200, 0.001), tl, index_var="age")
+prob = lf.Probabilities(port, [qx])                       # in-force and exit grids
+
+@lf.grid(port, tl)
+def death_benefit(t, capital):
+    return capital
+
+@lf.grid(port, tl)
+def discount(t):
+    return 1.02 ** (-t / 12)
+
+bel = (prob.exit_by(qx) * death_benefit() * discount()).sum(axis=1)
+print(bel)   # BEL per policy
+```
+
+Head to the [**Guía**](example.qmd) for a full, worked mixed-endowment portfolio,
+or the [**Referencia**](referencia.qmd) for the API.

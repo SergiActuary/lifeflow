@@ -1,15 +1,7 @@
 ---
-title: "Computing the BEL of a portfolio with lifeflow"
-author: "Sergi"
-date: today
-format:
-  html:
-    embed-resources: true
-    toc: true
-    toc-title: "Contents"
-    code-fold: false
-    theme: cosmo
-jupyter: python3
+title: "Guía — computing the BEL of a portfolio"
+toc: true
+toc-title: "Contents"
 ---
 
 ## The product
@@ -51,7 +43,7 @@ import polars as pl
 import numpy as np
 import lifeflow as lf
 
-df = pl.read_parquet("data/example_lifeflow.parquet")
+df = pl.read_parquet("../data/example_lifeflow.parquet")
 df_m = df.filter(pl.col("sexo") == "H")
 df_m.head(10)
 ```
@@ -62,7 +54,7 @@ repeat it, never the other way around— so that the annual mortality is
 preserved exactly:
 
 ```{python}
-qx_m = pl.read_csv("data/hypotheses/qx_TEST_M.csv")["qx"].to_numpy()
+qx_m = pl.read_csv("../data/hypotheses/qx_TEST_M.csv")["qx"].to_numpy()
 qx_m = np.repeat(1 - (1 - qx_m) ** (1 / 12), 12)
 qx_m.shape
 ```

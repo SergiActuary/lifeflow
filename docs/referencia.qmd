@@ -1,0 +1,98 @@
+---
+title: "API reference"
+toc: true
+---
+
+The public API, imported from the top-level `lifeflow` package (`import lifeflow as lf`).
+Every object returns plain numpy arrays of shape `N × T`.
+
+## Portfolio
+
+```python
+lf.Portfolio(df, id_col=None)
+```
+
+Wraps a polars DataFrame — one row per policy. Every column is exposed as a
+numpy array and looked up by name by `@grid` and `Decrement`. `id_col` enables
+`.ids` and `.selectid(value)` to isolate a single policy.
+
+## Timeline
+
+```python
+lf.Timeline(contract_boundary)
+```
+
+The projection horizon, read from a portfolio column holding each policy's term.
+The longest policy sets `T`; the others are masked past their own end. `t` runs
+**1 … T** — the present is never a projection period.
+
+## Decrement
+
+```python
+lf.Decrement(values, timeline, index_var=None)
+```
+
+A rate vector on the projection frequency (mortality, lapse, disability…).
+`index_var` names the column each policy enters the table at — typically age in
+months.
+
+## Probabilities
+
+```python
+prob = lf.Probabilities(portfolio, decrements)
+prob.inforce             # N × T : P(still in force) at the end of each month
+prob.exit_by(decrement)  # N × T : P(exit by that cause) each month
+prob.exit_by(decrement, method="udd")   # or "cf" (constant force)
+```
+
+Combines survival across all decrements with contract vigency. Both grids are
+computed lazily and cached. `exit_by()` with no argument returns all causes
+stacked as `K × N × T`.
+
+## grid
+
+```python
+@lf.grid(portfolio, timeline, *, jit=False, payable="post")
+def my_flow(t, col_a, col_b):
+    ...
+```
+
+Extends a per-policy, per-instant cash flow to the whole book. Arguments after
+`t` are matched by name against portfolio columns; calling the decorated
+function returns the `N × T` grid.
+
+- **`payable="pre"`** — prepayable flow: the last payment falls one period
+  before the contract expires; the library trims the vigency.
+- **`jit=True`** — compile with numba for purely arithmetic flows (far faster on
+  large books; single-grid returns only).
+
+## extend_t
+
+```python
+@lf.extend_t(T)
+def v(t, rate):
+    return (1 + rate) ** -t
+```
+
+Builds a single 1-D vector of length `T` (a curve that does not vary by policy),
+evaluated over `t = 1 … T`.
+
+## alm
+
+```python
+lf.duration_macaulay(flow, spot)   # months
+lf.duration_hicks(flow, spot)      # months
+lf.convexity(flow, spot)           # months²
+```
+
+Portfolio-level interest-rate sensitivity. Take the aggregated cash flow (collapse
+the grid with `.sum(axis=0)`) and a vector of spot rates on the same frequency.
+
+## audit_grid
+
+```python
+lf.audit_grid(grid, portfolio, id_col=None, present_date=None)
+```
+
+Dumps any grid to a polars DataFrame for inspection, one row per policy, with real
+month-end dates as column headers when `present_date` (dd/mm/yyyy) is given.

@@ -1,0 +1,37 @@
+project:
+  type: website
+  output-dir: _site
+  execute-dir: project
+
+website:
+  title: "lifeflow"
+  site-url: "https://sergiactuary.github.io/lifeflow/"
+  repo-url: "https://github.com/SergiActuary/lifeflow"
+  navbar:
+    background: primary
+    search: true
+    left:
+      - href: index.qmd
+        text: Inicio
+      - href: example.qmd
+        text: Guía
+      - href: referencia.qmd
+        text: Referencia
+      - href: changelog.qmd
+        text: Changelog
+    right:
+      - icon: github
+        href: https://github.com/SergiActuary/lifeflow
+        aria-label: GitHub
+      - text: PyPI
+        href: https://pypi.org/project/lifeflow/
+  page-footer:
+    center: "lifeflow · MIT License · Sergi López Vergara"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true
+
+jupyter: python3

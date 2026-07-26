@@ -123,10 +123,10 @@ portfolio, or the [**Reference**](reference.qmd) for the API.
 ```{=html}
 <section class="lf-section">
   <div class="lf-author">
-    <div class="lf-author-avatar">SL</div>
+    <div class="lf-author-avatar">SA</div>
     <div class="lf-author-text">
       <div class="lf-note-eyebrow">// the author</div>
-      <h3>Built by Sergi López Vergara</h3>
+      <h3>Built by SergiActuary</h3>
       <p>Actuary from Barcelona who likes to build things. lifeflow is my project
       to bring life-insurance calculations out of Excel and into fast,
       reproducible Python.</p>

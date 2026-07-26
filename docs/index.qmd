@@ -1,40 +1,81 @@
 ---
-title: "lifeflow"
-subtitle: "Vectorized life actuarial cash-flow and BEL engine"
+pagetitle: "lifeflow — vectorized life actuarial engine"
+page-layout: full
 toc: false
 ---
 
-**lifeflow** is a Python library for life actuarial cash-flow projection and
-Best Estimate Liability (BEL). You define your own cash flows as plain Python
-functions; the library vectorizes them across the whole portfolio as `N × T`
-grids (N policies, T months) and compiles the hot paths with numba.
+```{=html}
+<section class="lf-hero">
+  <div class="lf-hero-inner">
+    <div class="lf-hero-text">
+      <div class="lf-eyebrow">// life actuarial engine · python</div>
+      <h1>lifeflow<span class="dot">.</span></h1>
+      <p class="lf-tagline">
+        Project life-insurance cash flows and compute the BEL. Write your own
+        flows as plain Python; lifeflow vectorizes them across the whole
+        portfolio as <strong>N × T</strong> grids and compiles the hot paths
+        with numba.
+      </p>
+      <div class="lf-cta">
+        <a class="lf-btn lf-btn-primary" href="example.html">Get started →</a>
+        <a class="lf-btn lf-btn-ghost" href="https://github.com/SergiActuary/lifeflow">GitHub</a>
+        <a class="lf-btn lf-btn-ghost" href="https://pypi.org/project/lifeflow/">PyPI</a>
+      </div>
+      <div class="lf-install">pip install <code>lifeflow</code></div>
+    </div>
 
-[Get started →](example.qmd){.btn .btn-primary}
-&nbsp;
-[View on GitHub](https://github.com/SergiActuary/lifeflow){.btn .btn-outline-secondary}
+    <div class="lf-window">
+      <div class="lf-window-head">
+        <span class="d"></span><span class="d"></span><span class="d"></span>
+        <span class="t">bel.py</span>
+      </div>
+<pre><code><span class="k">import</span> lifeflow <span class="k">as</span> lf
 
-## What it does
+port = lf.Portfolio(df, <span class="s">"id"</span>)
+prob = lf.Probabilities(port, [qx])
 
-- **In-force & exits** — the policy in-force grid from any combination of
-  competing decrements, and per-cause exit rates under UDD or constant force,
-  exact for any number of causes.
-- **Your own cash flows** — write a flow for one policy at one instant; the
-  `@grid` decorator broadcasts it across the whole book.
-- **Interest-rate sensitivity** — Macaulay and Hicks duration, and convexity,
-  over a spot curve.
+<span class="k">@lf.grid</span>(port, tl)
+<span class="k">def</span> death(t, capital):
+    <span class="k">return</span> capital
 
-Every result is a plain numpy array of shape `N × T`, inspectable at any step.
+<span class="c"># BEL per policy</span>
+bel = (prob.exit_by(qx)
+       * death()).sum(axis=<span class="s">1</span>)</code></pre>
+    </div>
+  </div>
+</section>
 
-## Installation
-
-```bash
-pip install lifeflow
+<section class="lf-section">
+  <h2>What it does</h2>
+  <p class="sub">Three things, so you can focus on the actuarial choices.</p>
+  <div class="lf-grid3">
+    <div class="lf-card">
+      <div class="ic">📉</div>
+      <h3>In-force &amp; exits</h3>
+      <p>The policy in-force grid from any combination of competing decrements,
+      and per-cause exit rates under UDD or constant force — exact for any
+      number of causes.</p>
+    </div>
+    <div class="lf-card">
+      <div class="ic">🧩</div>
+      <h3>Your own cash flows</h3>
+      <p>Write a flow for one policy at one instant; the <code>@grid</code>
+      decorator broadcasts it across the whole book, matching columns by name.</p>
+    </div>
+    <div class="lf-card">
+      <div class="ic">📈</div>
+      <h3>Rate sensitivity</h3>
+      <p>Macaulay and Hicks duration, and convexity, over a spot curve — at the
+      portfolio level, where they belong.</p>
+    </div>
+  </div>
+</section>
 ```
 
 ## Quickstart
 
-Compute the BEL of a small book in a few lines — define your own cash flows as
-plain Python, and the library vectorizes them across the portfolio:
+Compute the BEL of a small book in a few lines — every result is a plain numpy
+array of shape `N × T`, inspectable at any step:
 
 ```python
 import numpy as np, polars as pl, lifeflow as lf
@@ -59,5 +100,5 @@ bel = (prob.exit_by(qx) * death_benefit() * discount()).sum(axis=1)
 print(bel)   # BEL per policy
 ```
 
-Head to the [**Guide**](example.qmd) for a full, worked mixed-endowment portfolio,
-or the [**Reference**](reference.qmd) for the API.
+Head to the [**Guide**](example.qmd) for a full, worked mixed-endowment
+portfolio, or the [**Reference**](reference.qmd) for the API.

@@ -47,27 +47,43 @@ bel = (prob.exit_by(qx)
 
 <section class="lf-section">
   <h2>What it does</h2>
-  <p class="sub">Three things, so you can focus on the actuarial choices.</p>
+  <p class="sub">The standard building blocks for life reserves — automated, and fast.</p>
   <div class="lf-grid3">
     <div class="lf-card">
-      <div class="ic">📉</div>
-      <h3>In-force &amp; exits</h3>
-      <p>The policy in-force grid from any combination of competing decrements,
-      and per-cause exit rates under UDD or constant force — exact for any
-      number of causes.</p>
+      <div class="ic">🛡️</div>
+      <h3>Reserve building blocks</h3>
+      <p>Automates the standard calculations behind mathematical reserves across
+      frameworks — the in-force grid, and the probability of staying in force to a
+      period and then exiting by a cause — through a clean object-oriented API.</p>
     </div>
     <div class="lf-card">
       <div class="ic">🧩</div>
-      <h3>Your own cash flows</h3>
-      <p>Write a flow for one policy at one instant; the <code>@grid</code>
-      decorator broadcasts it across the whole book, matching columns by name.</p>
+      <h3>Cash flows by decorator</h3>
+      <p>Design and project payment flows the easy way: ready-made decorators take
+      a flow written for a single policy and project it across the whole
+      portfolio.</p>
     </div>
     <div class="lf-card">
-      <div class="ic">📈</div>
-      <h3>Rate sensitivity</h3>
-      <p>Macaulay and Hicks duration, and convexity, over a spot curve — at the
-      portfolio level, where they belong.</p>
+      <div class="ic">⚡</div>
+      <h3>Fast by design</h3>
+      <p>Built for computational efficiency with numba, so projecting large life
+      portfolios stays fast — the engine keeps up, it isn't the bottleneck.</p>
     </div>
+  </div>
+</section>
+
+<section class="lf-section">
+  <div class="lf-note">
+    <div class="lf-note-eyebrow">// the philosophy</div>
+    <h2>A complement to numpy, not a replacement</h2>
+    <p>lifeflow doesn't box you into closed-form formulas. It gives the actuary a
+    small set of tools — an object-oriented engine for in-force and exit
+    probabilities, and decorators to project cash flows — so you keep
+    <strong>total control of the numbers</strong> while the boilerplate and the
+    performance are taken care of.</p>
+    <p>Ideal for moving <strong>Excel calculations to Python</strong> and
+    standardizing them into a calculation flow that is easy to design,
+    reproducible and fast.</p>
   </div>
 </section>
 ```

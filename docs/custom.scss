@@ -83,3 +83,15 @@ $accent: #3a5bd9;
 .lf-card .ic { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; background: #e9edfc; font-size: 1.35rem; margin-bottom: 14px; }
 .lf-card h3 { font-size: 1.04rem; font-weight: 700; margin-bottom: 6px; }
 .lf-card p { color: #5a6782; font-size: .94rem; margin: 0; }
+
+/* ===== PHILOSOPHY NOTE ===== */
+.lf-note {
+  max-width: 780px; margin: 0 auto;
+  background: linear-gradient(180deg, #f2f6fe, #eef2fb);
+  border: 1px solid #dbe4f5; border-radius: 16px;
+  padding: 40px; text-align: center;
+}
+.lf-note-eyebrow { font-family: $font-family-monospace; font-size: .78rem; color: $accent; letter-spacing: .04em; margin-bottom: 10px; }
+.lf-note h2 { text-align: center; margin-bottom: 16px; border: none; }
+.lf-note p { color: #4a566e; max-width: 640px; margin: 0 auto 12px; font-size: 1.02rem; }
+.lf-note p:last-child { margin-bottom: 0; }

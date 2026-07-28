@@ -38,5 +38,7 @@ format:
     theme: [cosmo, custom.scss]
     toc: true
     code-copy: true
+    grid:
+      body-width: 1200px
 
 jupyter: python3

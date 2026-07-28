@@ -10,11 +10,22 @@ This tutorial walks through **every function in LifeFlow** on a deliberately tin
 portfolio — three policies, five years at most — so that each grid can be printed
 in full and you can see exactly what goes in and what comes out at every step.
 
-**The product.** Each policy pays a **capital** if the insured **dies** *or*
-becomes **disabled** (the same capital for both), the policyholder pays a
-**premium**, and the insurer charges a **management expense** as a fraction of the
-capital. Two competing decrements, a handful of cash flows: enough to exercise the
-whole library without drowning in product detail.
+## The product
+
+We model a simple **protection policy**: a temporary cover that pays a lump-sum
+**capital** the moment the insured leaves the portfolio, whether by **death** or by
+**disability**. The two events are mutually exclusive competing risks — whichever
+happens first ends the contract and triggers the same benefit — so the policy is
+naturally described by **two decrements**. There is no survival or maturity
+benefit: if the policyholder reaches the end of the term still healthy, the cover
+simply expires.
+
+In exchange, the policyholder pays an annual **premium**, growing at a fixed
+geometric rate and collected in advance at the start of each year. The insurer, in
+turn, incurs a **management expense** every year, charged as a small fraction of
+the insured capital. Four cash flows in all — two benefits, premiums and expenses —
+over two competing decrements: a compact product, but rich enough to put every
+part of the library to work without getting lost in product detail.
 
 ## Data and hypotheses
 

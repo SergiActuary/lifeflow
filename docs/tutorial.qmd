@@ -1,0 +1,239 @@
+---
+title: "Tutorial — a complete tour of LifeFlow"
+description: "A full walkthrough of every LifeFlow function on a tiny 3-policy portfolio: probabilities, cash flows, ALM and reserves, step by step."
+toc: true
+toc-title: "Contents"
+jupyter: python3
+---
+
+This tutorial walks through **every function in LifeFlow** on a deliberately tiny
+portfolio — three policies, five years at most — so that each grid can be printed
+in full and you can see exactly what goes in and what comes out at every step.
+
+**The product.** Each policy pays a **capital** if the insured **dies** *or*
+becomes **disabled** (the same capital for both), the policyholder pays a
+**premium**, and the insurer charges a **management expense** as a fraction of the
+capital. Two competing decrements, a handful of cash flows: enough to exercise the
+whole library without drowning in product detail.
+
+## Data and hypotheses
+
+We start with the portfolio — one row per policy — and the actuarial assumptions.
+Time is **annual** here to keep everything readable.
+
+```{python}
+import polars as pl
+import numpy as np
+import lifeflow as lf
+
+df = pl.DataFrame({
+    "id_pol":         ["P1", "P2", "P3"],
+    "age":            [40, 45, 35],                       # age in years (entry into the tables)
+    "duration_inf":   [2, 1, 0],                          # years elapsed since issue
+    "duration_end":   [3, 2, 5],                          # years remaining (each policy's horizon)
+    "capital":        [100_000.0, 150_000.0, 80_000.0],   # death = disability capital
+    "premium":        [1_200.0, 1_500.0, 900.0],          # base annual premium
+    "premium_growth": [0.03, 0.02, 0.05],                 # geometric growth of the premium
+    "expense_rate":   [0.005, 0.005, 0.005],              # annual expense, as a fraction of capital
+})
+df
+```
+
+The **hypotheses** live outside the portfolio, because they are shared by every
+policy. The mortality and disability tables are annual vectors indexed by age
+(here up to age 119, synthetic but rising with age), and the interest curve is an
+annual spot curve in the style of an EIOPA term structure.
+
+```{python}
+ages = np.arange(120)
+mort_qx  = np.clip(0.0005 * 1.09 ** ages, 0.0, 0.5)   # annual mortality rate q_x
+disab_ix = np.clip(0.0003 * 1.08 ** ages, 0.0, 0.5)   # annual disability rate i_x
+spot_rate = 0.02 + 0.015 * (1 - np.exp(-np.arange(1, 121) / 15))
+
+mort_qx.shape, disab_ix.shape, spot_rate.shape
+```
+
+## The core objects
+
+Three objects set up the engine. `Portfolio` wraps the data; `Timeline` reads each
+policy's remaining term from a column; and each `Decrement` pairs a rate vector
+with that timeline, indexed by the policy's age.
+
+```{python}
+pfl = lf.Portfolio(df, id_col="id_pol")
+tl  = lf.Timeline("duration_end")
+qx  = lf.Decrement(mort_qx,  tl, index_var="age")   # mortality
+ix  = lf.Decrement(disab_ix, tl, index_var="age")   # disability
+```
+
+These objects are **lazy specifications**: they store column names and rate
+vectors, not the data itself. The portfolio flows in only when you call one of
+their methods — which is handy for looking under the hood.
+
+`Timeline.mask` returns a boolean matrix that is `True` while each policy is still
+in force. Because contracts end at different times but we still need a rectangular
+`N × T` shape, the mask is what switches expired cells off.
+
+```{python}
+tl.mask(pfl)
+```
+
+`Decrement.grid` reads the table for each policy from its entry age, cut to that
+policy's horizon:
+
+```{python}
+qx.grid(pfl)   # each policy's mortality rates, read from its own age
+```
+
+## Probabilities
+
+`Probabilities` is the actuarial engine. It takes the portfolio and the list of
+competing decrements — so the `Timeline` rides along implicitly through them.
+
+`inforce` is the in-force probability `ₜpₓ`, but combining **all** exit causes at
+once (here mortality *and* disability): the probability that a policy is still on
+the books at the end of each year.
+
+```{python}
+prob = lf.Probabilities(pfl, [qx, ix])
+
+inforce = prob.inforce
+inforce
+```
+
+`exit_by` gives the probability that a policy stays in force and then **exits by
+one specific cause** in a given year. It is a **competing-risks** (dependent)
+probability: it already accounts for the fact that the *other* causes are
+fighting for the same period. It is **not** the standalone rate of that cause in
+isolation — that distinction is precisely the point of having two decrements.
+
+```{python}
+exit_death = prob.exit_by(qx)   # exit by death
+exit_disab = prob.exit_by(ix)   # exit by disability
+exit_death
+```
+
+Everything reconciles: for a policy that runs its full term, being still in force
+plus every way of having exited must add up to one — no probability leaks.
+
+```{python}
+# P3 survives the full 5 years
+inforce[2, 4] + exit_death[2].sum() + exit_disab[2].sum()
+```
+
+## The cash flows
+
+With the probability grids in hand, we now need the **deterministic,
+undiscounted** cash flows. Here the library gets out of the way: every product has
+different flows, so the actuary defines them openly. The only requirement is that
+each flow ends up as an `N × T` matrix.
+
+That is what the `@grid` decorator is for. You write a plain function giving the
+flow's value for **one policy at one time `t`**, and the decorator builds the
+`N × T` matrix and fills it — every argument after `t` is matched by name against a
+portfolio column. Beyond removing boilerplate, `@grid` is wired to numba: set
+`jit=True` to compile the function so that conditional logic is not a performance
+bottleneck.
+
+The **benefit** is the same capital whether the policyholder dies or becomes
+disabled, so a single amount grid serves both:
+
+```{python}
+@lf.grid(pfl, tl)
+def capital_benefit(t, capital):
+    return capital
+
+capital_benefit()
+```
+
+The **premium** is payable in advance (`payable="pre"`) and grows geometrically.
+Because it is prepayable, the amount collected at the *start* of a period is the
+**next** period's premium — hence the exponent `duration_inf + t` (a `+t`, not
+`+t-1`). The library shifts the vigency; aligning the amount in time is the
+actuary's part.
+
+```{python}
+@lf.grid(pfl, tl, payable="pre")
+def premium_flow(t, premium, premium_growth, duration_inf):
+    year = duration_inf + t          # +t, not +t-1: the premium due at the start of the next period
+    return premium * (1 + premium_growth) ** year
+
+premium_flow()
+```
+
+The **expense** is a fixed fraction of the capital, incurred while the contract is
+in force:
+
+```{python}
+@lf.grid(pfl, tl)
+def expense_flow(t, capital, expense_rate):
+    return capital * expense_rate
+
+expense_flow()
+```
+
+## Probability-weighted flows
+
+With the amounts and the probabilities ready, the probability-weighted flows are
+simply element-wise products: each **benefit** by its exit probability, and
+**premiums** and **expenses** by the in-force probability.
+
+```{python}
+act_flow_death    = capital_benefit() * exit_death
+act_flow_disable  = capital_benefit() * exit_disab
+act_flow_premium  = premium_flow()    * inforce
+act_flow_expenses = expense_flow()    * inforce
+```
+
+The **net reserve flow** of the whole portfolio is then just a sum and a
+subtraction of grids — benefits plus expenses, minus premiums:
+
+```{python}
+act_flow_reserve = act_flow_death + act_flow_disable + act_flow_expenses - act_flow_premium
+act_flow_reserve
+```
+
+## Interest-rate sensitivity (ALM)
+
+Before discounting, we can measure the interest-rate sensitivity of that net flow.
+We collapse the grid **across policies** (`axis=0`) to get the portfolio-level cash
+flow, and pass it with the spot curve to the duration and convexity functions.
+
+```{python}
+rate = spot_rate[:tl.horizon(pfl)]              # the curve, cut to the horizon
+portfolio_act_flow = act_flow_reserve.sum(axis=0)   # aggregate flow, year by year
+
+(lf.duration_macaulay(portfolio_act_flow, rate),
+ lf.duration_hicks(portfolio_act_flow, rate),
+ lf.convexity(portfolio_act_flow, rate))
+```
+
+## Discounting to the reserve
+
+Finally, the reserve. The spot curve gives one discount factor per year,
+`v_t = (1 + s_t)^{-t}`. Multiplying the reserve flow by it and summing over time
+(`axis=1`) gives the reserve **per policy**; summing everything gives the
+portfolio reserve.
+
+```{python}
+time = np.arange(1, len(rate) + 1)
+v = (1 + rate) ** (-time)
+
+vaa_reserve_policy = (act_flow_reserve * v).sum(axis=1)
+vaa_reserve_policy
+```
+
+```{python}
+vaa_total_reserve = (act_flow_reserve * v).sum()
+vaa_total_reserve
+```
+
+## Where to go next
+
+That is the whole library on one small book: `Portfolio`, `Timeline`,
+`Decrement`, `Probabilities` (`inforce` and `exit_by`), the `@grid` decorator with
+`payable`, `extend_t`/numpy for discounting, `alm` for duration and convexity, and
+`audit_grid` to inspect any grid.
+
+For a realistic case on a full portfolio, see the [**Guide**](example.qmd); for
+the full API, the [**Reference**](reference.qmd).

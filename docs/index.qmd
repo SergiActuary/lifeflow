@@ -64,7 +64,7 @@ reserve = (death_benefit()
       <div class="lf-ic">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/><path d="M9 5v4M15 10v4M7 15v4"/></svg>
       </div>
-      <h3>Flexible</h3>
+      <h3>Yours to shape</h3>
       <div class="lf-feat"><strong>Your flows, your rules</strong> — define the shape of every flow yourself: use conditions and any portfolio variable you need.</div>
       <div class="lf-feat"><strong>You stay in control</strong> — LifeFlow expects you to drive. It hands you the tools and gets out of the way, so you can fit it to your exact product.</div>
     </div>

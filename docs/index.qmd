@@ -11,8 +11,8 @@ toc: false
     <div class="lf-hero-text">
       <h1>LifeFlow<span class="dot">.</span></h1>
       <p class="lf-tagline">
-        Project life-insurance cash flows and compute the BEL. Write your own
-        flows as plain Python; LifeFlow vectorizes them across the whole
+        Project life-insurance cash flows and compute the reserves. Write your
+        own flows as plain Python; LifeFlow vectorizes them across the whole
         portfolio as <strong>N × T</strong> grids and compiles the hot paths
         with numba.
       </p>
@@ -27,7 +27,7 @@ toc: false
     <div class="lf-window">
       <div class="lf-window-head">
         <span class="d"></span><span class="d"></span><span class="d"></span>
-        <span class="t">bel.py</span>
+        <span class="t">reserve.py</span>
       </div>
 <pre><code><span class="k">import</span> lifeflow <span class="k">as</span> lf
 
@@ -35,12 +35,13 @@ port = lf.Portfolio(df, <span class="s">"id"</span>)
 prob = lf.Probabilities(port, [qx])
 
 <span class="k">@lf.grid</span>(port, tl)
-<span class="k">def</span> death_capital(t, capital):
+<span class="k">def</span> death_benefit(t, capital):
     <span class="k">return</span> capital
 
-<span class="c"># BEL per policy</span>
-bel = (prob.exit_by(qx)
-       * death_capital()).sum(axis=<span class="s">1</span>)</code></pre>
+<span class="c"># reserve = amount × probability × discount</span>
+reserve = (death_benefit()
+           * prob.exit_by(qx)
+           * discount).sum(axis=<span class="s">1</span>)</code></pre>
     </div>
   </div>
 </section>

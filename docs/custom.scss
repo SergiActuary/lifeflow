@@ -87,8 +87,21 @@ $accent: #3a5bd9;
 }
 .lf-card .lf-ic svg { width: 24px; height: 24px; }
 .lf-card:hover .lf-ic { background: $accent; color: #fff; }
-.lf-card h3 { font-size: 1.04rem; font-weight: 700; margin-bottom: 6px; }
+.lf-card h3 { font-size: 1.06rem; font-weight: 700; margin-bottom: 6px; }
 .lf-card p { color: #5a6782; font-size: .94rem; margin: 0; }
+
+/* big headline for the "what it does" section */
+.lf-section h2.lf-big {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.15; letter-spacing: -.025em;
+  max-width: 820px; margin: 0 auto 10px;
+}
+
+/* sub-points inside a card */
+.lf-card .lf-feat { color: #5a6782; font-size: .92rem; line-height: 1.6; margin-top: 12px; }
+.lf-card h3 + .lf-feat { margin-top: 4px; }
+.lf-card .lf-feat strong { color: #1a2233; font-weight: 700; }
+.lf-card .lf-feat-note { font-size: .84rem; font-style: italic; color: #93a1bb; margin-top: 14px; }
 
 /* ===== PHILOSOPHY BAND ===== */
 .lf-band {

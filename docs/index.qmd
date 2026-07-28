@@ -47,37 +47,36 @@ reserve = (death_benefit()
 </section>
 
 <section class="lf-section">
-  <h2>What it does</h2>
-  <p class="sub">The standard building blocks for life reserves — automated, and fast.</p>
+  <h2 class="lf-big">LifeFlow computes reserves for life-insurance portfolios</h2>
+  <p class="sub">Easy to write, flexible to your product, and fast at scale.</p>
   <div class="lf-grid3">
-
-    <div class="lf-card">
-      <div class="lf-ic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v16a1 1 0 0 0 1 1h16"/><path d="M4 8c8 0 8 10 16 10"/></svg>
-      </div>
-      <h3>Reserve building blocks</h3>
-      <p>Automates the standard calculations behind mathematical reserves across
-      frameworks — the in-force grid, and the probability of staying in force to a
-      period and then exiting by a cause — through a clean object-oriented API.</p>
-    </div>
 
     <div class="lf-card">
       <div class="lf-ic">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v3.5a2 2 0 0 1-2 2 2 2 0 0 1 2 2V16a2 2 0 0 0 2 2h1"/><path d="M16 3h1a2 2 0 0 1 2 2v3.5a2 2 0 0 0 2 2 2 2 0 0 0-2 2V16a2 2 0 0 1-2 2h-1"/></svg>
       </div>
-      <h3>Cash flows by decorator</h3>
-      <p>Design and project payment flows the easy way: ready-made decorators take
-      a flow written for a single policy and project it across the whole
-      portfolio.</p>
+      <h3>Easy to code</h3>
+      <div class="lf-feat"><strong>Object-oriented</strong> — the repetitive calculations are automated inside objects, so your own code stays clean.</div>
+      <div class="lf-feat"><strong>Decorators</strong> — ready-made decorators simplify building each calculation and guide you through defining the flows.</div>
+    </div>
+
+    <div class="lf-card">
+      <div class="lf-ic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/><path d="M9 5v4M15 10v4M7 15v4"/></svg>
+      </div>
+      <h3>Flexible</h3>
+      <div class="lf-feat"><strong>Your flows, your rules</strong> — define the shape of every flow yourself: use conditions and any portfolio variable you need.</div>
+      <div class="lf-feat"><strong>You stay in control</strong> — LifeFlow expects you to drive. It hands you the tools and gets out of the way, so you can fit it to your exact product.</div>
     </div>
 
     <div class="lf-card">
       <div class="lf-ic">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
       </div>
-      <h3>Fast by design</h3>
-      <p>Built for computational efficiency with numba, so projecting large life
-      portfolios stays fast — the engine keeps up, it isn't the bottleneck.</p>
+      <h3>Computationally efficient</h3>
+      <div class="lf-feat"><strong>Fast foundations</strong> — built on powerful Python libraries designed for fast, parallelizable numerical work.</div>
+      <div class="lf-feat"><strong>Speed without losing clarity</strong> — the grid design keeps calculations fast <em>and</em> easy to audit and review.</div>
+      <div class="lf-feat lf-feat-note">Rust modules for a few specific processes are on the roadmap.</div>
     </div>
 
   </div>

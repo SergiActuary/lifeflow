@@ -3,7 +3,7 @@
 
 $primary:    #3a5bd9;
 $link-color: #3a5bd9;
-$body-bg:    #f4f6fc;
+$body-bg:    #eaedf8;
 $font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 $font-family-monospace: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 
@@ -21,12 +21,12 @@ $sh-md: 0 12px 34px rgba(58,91,217,.13), 0 3px 10px rgba(20,27,45,.06);
 
 body {
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-  background-color: #f4f6fc;
+  background-color: #eaedf8;
   background-image:
-    radial-gradient(46% 40% at 12% 0%,  rgba(109,139,255,.16), transparent 72%),
-    radial-gradient(42% 38% at 92% 4%,  rgba(150,128,235,.13), transparent 72%),
-    radial-gradient(50% 45% at 78% 55%, rgba(96,178,214,.08),  transparent 74%),
-    radial-gradient(40% 40% at 8% 82%,  rgba(109,139,255,.09), transparent 74%);
+    radial-gradient(55% 48% at 10% -2%, rgba(96,120,255,.34),  transparent 70%),
+    radial-gradient(52% 44% at 92% 2%,  rgba(158,120,240,.30), transparent 70%),
+    radial-gradient(62% 55% at 84% 58%, rgba(84,168,214,.20),  transparent 72%),
+    radial-gradient(58% 52% at 4% 90%,  rgba(118,138,255,.22), transparent 72%);
   background-attachment: fixed;
   background-repeat: no-repeat;
 }

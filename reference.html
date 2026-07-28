@@ -73,12 +73,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-e496211f8a0383a89a5e937fbb387914.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-7c192a48ba3023852e74ba5c87fc1636.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-277cb9d332fb41a654a309feba79082f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -156,6 +155,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
+    <a class="nav-link" href="https://sergiactuary.github.io/"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="https://github.com/SergiActuary/lifeflow"> 
 <span class="menu-text">GitHub</span></a>
   </li>  
@@ -219,22 +222,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>The public API, imported from the top-level <code>lifeflow</code> package (<code>import lifeflow as lf</code>). Every object returns plain numpy arrays of shape <code>N × T</code>.</p>
 <section id="portfolio" class="level2">
-<h2 class="anchored" data-anchor-id="portfolio">Portfolio</h2>
+<h2 data-anchor-id="portfolio">Portfolio</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>lf.Portfolio(df, id_col<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Wraps a polars DataFrame — one row per policy. Every column is exposed as a numpy array and looked up by name by <code>@grid</code> and <code>Decrement</code>. <code>id_col</code> enables <code>.ids</code> and <code>.selectid(value)</code> to isolate a single policy.</p>
 </section>
 <section id="timeline" class="level2">
-<h2 class="anchored" data-anchor-id="timeline">Timeline</h2>
+<h2 data-anchor-id="timeline">Timeline</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>lf.Timeline(contract_boundary)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The projection horizon, read from a portfolio column holding each policy’s term. The longest policy sets <code>T</code>; the others are masked past their own end. <code>t</code> runs <strong>1 … T</strong> — the present is never a projection period.</p>
 </section>
 <section id="decrement" class="level2">
-<h2 class="anchored" data-anchor-id="decrement">Decrement</h2>
+<h2 data-anchor-id="decrement">Decrement</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lf.Decrement(values, timeline, index_var<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A rate vector on the projection frequency (mortality, lapse, disability…). <code>index_var</code> names the column each policy enters the table at — typically age in months.</p>
 </section>
 <section id="probabilities" class="level2">
-<h2 class="anchored" data-anchor-id="probabilities">Probabilities</h2>
+<h2 data-anchor-id="probabilities">Probabilities</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>prob <span class="op">=</span> lf.Probabilities(portfolio, decrements)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>prob.inforce             <span class="co"># N × T : P(still in force) at the end of each month</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>prob.exit_by(decrement)  <span class="co"># N × T : P(exit by that cause) each month</span></span>
@@ -242,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Combines survival across all decrements with contract vigency. Both grids are computed lazily and cached. <code>exit_by()</code> with no argument returns all causes stacked as <code>K × N × T</code>.</p>
 </section>
 <section id="grid" class="level2">
-<h2 class="anchored" data-anchor-id="grid">grid</h2>
+<h2 data-anchor-id="grid">grid</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(portfolio, timeline, <span class="op">*</span>, jit<span class="op">=</span><span class="va">False</span>, payable<span class="op">=</span><span class="st">"post"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_flow(t, col_a, col_b):</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -253,21 +256,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 </section>
 <section id="extend_t" class="level2">
-<h2 class="anchored" data-anchor-id="extend_t">extend_t</h2>
+<h2 data-anchor-id="extend_t">extend_t</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.extend_t</span>(T)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> v(t, rate):</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">1</span> <span class="op">+</span> rate) <span class="op">**</span> <span class="op">-</span>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Builds a single 1-D vector of length <code>T</code> (a curve that does not vary by policy), evaluated over <code>t = 1 … T</code>.</p>
 </section>
 <section id="alm" class="level2">
-<h2 class="anchored" data-anchor-id="alm">alm</h2>
+<h2 data-anchor-id="alm">alm</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lf.duration_macaulay(flow, spot)   <span class="co"># months</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>lf.duration_hicks(flow, spot)      <span class="co"># months</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>lf.convexity(flow, spot)           <span class="co"># months²</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Portfolio-level interest-rate sensitivity. Take the aggregated cash flow (collapse the grid with <code>.sum(axis=0)</code>) and a vector of spot rates on the same frequency.</p>
 </section>
 <section id="audit_grid" class="level2">
-<h2 class="anchored" data-anchor-id="audit_grid">audit_grid</h2>
+<h2 data-anchor-id="audit_grid">audit_grid</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>lf.audit_grid(grid, portfolio, id_col<span class="op">=</span><span class="va">None</span>, present_date<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Dumps any grid to a polars DataFrame for inspection, one row per policy, with real month-end dates as column headers when <code>present_date</code> (dd/mm/yyyy) is given.</p>
 
@@ -277,13 +280,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
         if (clz.startsWith('code-annotation-')) {                     

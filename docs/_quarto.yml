@@ -25,7 +25,7 @@ website:
       - href: changelog.qmd
         text: Changelog
     right:
-      - text: About
+      - text: Author
         href: https://sergiactuary.github.io/
       - text: GitHub
         href: https://github.com/SergiActuary/lifeflow

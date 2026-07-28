@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-e496211f8a0383a89a5e937fbb387914.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-4adab4ac0ed6b56c606f8ae0b5e23957.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-604b44daf5d4d1bd7f7b84c2dd83b4c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -264,7 +264,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="data-and-assumptions">Data and assumptions</h2>
 <p>We load the portfolio and keep the men. Each row is a policy; its columns (sums assured, premiums, technical rate, age in months, duration…) are what the library projects from.</p>
 <p>A key idea when using lifeflow: every policy in a <code>Portfolio</code> <strong>shares the same actuarial assumptions</strong> — the same survival/death table, the same lapse assumption, and so on. An assumption is a single <strong>vector</strong>; per policy it is adjusted only at its <strong>start</strong> (where it begins reading the table) and its <strong>end</strong> (where the contract expires), but every policy draws from that same vector. That is why we split the book before projecting: policies that need a different table belong to a different <code>Portfolio</code>.</p>
-<div id="f225cea4" class="cell" data-execution_count="1">
+<div id="4924819f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> lifeflow <span class="im">as</span> lf</span>
@@ -519,7 +519,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The mortality table comes at <strong>annual</strong> frequency, but the projection is monthly. We monthlyize it under constant force —convert the rate <em>first</em>, then repeat it, never the other way around— so that the annual mortality is preserved exactly:</p>
-<div id="c44b8ac0" class="cell" data-execution_count="2">
+<div id="8df85225" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>qx_m <span class="op">=</span> pl.read_csv(<span class="st">"../data/hypotheses/qx_TEST_M.csv"</span>)[<span class="st">"qx"</span>].to_numpy()</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>qx_m <span class="op">=</span> np.repeat(<span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> qx_m) <span class="op">**</span> (<span class="dv">1</span> <span class="op">/</span> <span class="dv">12</span>), <span class="dv">12</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>qx_m.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -531,13 +531,13 @@ window.Quarto = {
 <section id="the-engine-probabilities" class="level2">
 <h2 class="anchored" data-anchor-id="the-engine-probabilities">The engine: probabilities</h2>
 <p>Three objects build the engine. <code>Portfolio</code> wraps the <code>df</code>; <code>Timeline</code> reads each policy’s term from a column (it sets the horizon and masks out policies that have already matured); <code>Decrement</code> is the mortality table, indexed by each policy’s age in months.</p>
-<div id="f81bc61a" class="cell" data-execution_count="3">
+<div id="a6b35a48" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pfl <span class="op">=</span> lf.Portfolio(df_m, id_col<span class="op">=</span><span class="st">"poliza_id"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>tl <span class="op">=</span> lf.Timeline(<span class="st">"duration_end"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>qx <span class="op">=</span> lf.Decrement(qx_m, tl, index_var<span class="op">=</span><span class="st">"age"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>Probabilities</code> combines everything and gives us the two probabilities we need, each a grid of N policies × T months:</p>
-<div id="57b827b2" class="cell" data-execution_count="4">
+<div id="f196ef35" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>prob <span class="op">=</span> lf.Probabilities(pfl, [qx])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>tpx <span class="op">=</span> prob.inforce             <span class="co"># P(still in force) at the end of each month</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>exit_death <span class="op">=</span> prob.exit_by(qx)  <span class="co"># P(dies) during each month</span></span>
@@ -552,7 +552,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="the-cash-flows">The cash flows</h2>
 <p>Each flow is written with <code>@lf.grid</code>: a function for <strong>one policy in one month</strong>, which the library extends to the whole book. The arguments after <code>t</code> are matched by name against the columns of the <code>df</code>. We set <code>jit=True</code> to compile with numba —all five functions are pure arithmetic, so it flies.</p>
 <p>First the <strong>discount factor</strong>, which depends on each policy’s technical rate:</p>
-<div id="8bcfe762" class="cell" data-execution_count="5">
+<div id="6986fbb6" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(pfl, tl, jit<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> discount(t, tipo_interes_tecnico):</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> (<span class="dv">1</span> <span class="op">+</span> tipo_interes_tecnico) <span class="op">**</span> (<span class="dv">1</span> <span class="op">/</span> <span class="dv">12</span>) <span class="op">-</span> <span class="dv">1</span></span>
@@ -577,7 +577,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The <strong>survival benefit</strong>. It is paid only at maturity (<code>t == duration_end</code>); every other month is zero. The amount is the initial sum assured with its annual increase, the year anchored at the policy’s issue date:</p>
-<div id="e6b4c6f0" class="cell" data-execution_count="6">
+<div id="b46b73f6" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(pfl, tl, jit<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> capital_sup(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                duration_if, duration_end):</span>
@@ -599,7 +599,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The <strong>death benefit</strong>. Same as above, but without the <code>if</code>: it can be paid in any month, so it returns the amount in all of them.</p>
-<div id="3ccef6ac" class="cell" data-execution_count="7">
+<div id="3405962b" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(pfl, tl, jit<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> capital_death(t, capital_fallecimiento_inicial, tasa_revalorizacion_fallecimiento,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                  duration_if):</span>
@@ -626,7 +626,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The <strong>premiums</strong>. A premium is due only in the months when an installment falls, and they are <strong>payable in advance</strong> (<code>payable="pre"</code>): the installment that would fall at maturity is not collected, and the library takes care of that.</p>
-<div id="5172bd6d" class="cell" data-execution_count="8">
+<div id="5244c164" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(pfl, tl, payable<span class="op">=</span><span class="st">"pre"</span>, jit<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prima(t, prima_anual_inicial, tasa_revalorizacion_prima, frecuencia_pago, duration_if):</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    periodo <span class="op">=</span> <span class="dv">12</span> <span class="op">//</span> frecuencia_pago</span>
@@ -638,7 +638,7 @@ window.Quarto = {
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>premium <span class="op">=</span> prima()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The <strong>expenses</strong>: an annual percentage of the (revalued) survival sum assured, converted to a monthly charge.</p>
-<div id="f22c3c93" class="cell" data-execution_count="9">
+<div id="037177f0" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@lf.grid</span>(pfl, tl, jit<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gasto(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>          tasa_gasto_sobre_capital, duration_if):</span>
@@ -695,7 +695,7 @@ window.Quarto = {
 <section id="the-bel" class="level2">
 <h2 class="anchored" data-anchor-id="the-bel">The BEL</h2>
 <p>We weight each amount by its probability, discount it, and sum over time. The result is the BEL of <strong>each policy</strong> (<code>axis=1</code> collapses the months):</p>
-<div id="2d37aa75" class="cell" data-execution_count="10">
+<div id="a50b0845" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sup_flow      <span class="op">=</span> cap_sup   <span class="op">*</span> tpx</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>death_flow    <span class="op">=</span> cap_death <span class="op">*</span> exit_death</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>premium_flow  <span class="op">=</span> premium   <span class="op">*</span> tpx</span>
@@ -714,14 +714,14 @@ window.Quarto = {
 </div>
 </div>
 <p>The total BEL of the male portfolio:</p>
-<div id="4f58fe30" class="cell" data-execution_count="11">
+<div id="670ac909" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Portfolio BEL (men): </span><span class="sc">{</span>bel_per_policy<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">:,.2f}</span><span class="ss"> €  (</span><span class="sc">{</span><span class="bu">len</span>(bel_per_policy)<span class="sc">}</span><span class="ss"> policies)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Portfolio BEL (men): 73,991,103.75 €  (722 policies)</code></pre>
 </div>
 </div>
 <p>And the portfolio’s provision profile month by month (<code>axis=0</code> collapses the policies instead of time), useful to see the run-off:</p>
-<div id="8f835a60" class="cell" data-execution_count="12">
+<div id="49b43bb1" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>portfolio_flow <span class="op">=</span> vaa_provision.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>portfolio_flow[:<span class="dv">12</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="12">

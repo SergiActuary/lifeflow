@@ -108,6 +108,32 @@ reserve = (death_benefit()
   </div>
 </section>
 
+<section class="lf-section lf-how">
+  <h2>How it works</h2>
+  <p class="sub">Every flow is an <strong>N × T</strong> matrix — one row per policy, one column per period — and two tools build them.</p>
+
+  <div class="lf-nt" aria-hidden="true">
+    <div class="lf-nt-corner"></div>
+    <div class="lf-nt-h">t₁</div><div class="lf-nt-h">t₂</div><div class="lf-nt-h">t₃</div><div class="lf-nt-h">t₄</div><div class="lf-nt-h">t₅</div>
+    <div class="lf-nt-r">P₁</div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div>
+    <div class="lf-nt-r">P₂</div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div>
+    <div class="lf-nt-r">Pₙ</div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div><div class="lf-nt-c"></div>
+  </div>
+
+  <div class="lf-how-cols">
+    <div class="lf-how-item">
+      <div class="lf-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/></svg></div>
+      <h3>Objects: the fixed maths</h3>
+      <p><code>Portfolio</code>, <code>Timeline</code>, <code>Decrement</code> and <code>Probabilities</code> handle the calculations that are identical for any portfolio — in-force and exit-by-cause probabilities. Set them up once and reuse them everywhere.</p>
+    </div>
+    <div class="lf-how-item">
+      <div class="lf-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.6 7.2"/></svg></div>
+      <h3>Decorators: your freedom</h3>
+      <p>With the <code>@grid</code> decorator you write a flow's value for one policy at one instant, in plain Python. It broadcasts that into the full N × T matrix — you keep total freedom to define your own flows while the grid is built for you.</p>
+    </div>
+  </div>
+</section>
+
 <section class="lf-try">
   <div class="lf-try-inner">
     <div class="lf-try-eyebrow">Tutorial</div>

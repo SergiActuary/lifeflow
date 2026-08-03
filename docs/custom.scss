@@ -180,6 +180,22 @@ body {
 .lf-band-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #9fb0d8; font-weight: 700; }
 .lf-band-foot { color: $muted; font-size: .98rem; line-height: 1.6; max-width: 600px; margin: 0 auto; }
 
+/* ===== HOW IT WORKS ===== */
+.lf-nt {
+  display: grid; grid-template-columns: auto repeat(5, 30px); gap: 7px;
+  align-items: center; justify-content: center; width: max-content;
+  margin: 4px auto 42px;
+}
+.lf-nt-h { font-family: $font-family-monospace; font-size: .76rem; color: $accent; text-align: center; }
+.lf-nt-r { font-family: $font-family-monospace; font-size: .76rem; color: $accent; text-align: right; padding-right: 4px; }
+.lf-nt-c { width: 30px; height: 30px; border-radius: 7px; background: linear-gradient(135deg, #eaeefc, #e4ebfe); border: 1px solid #d8e0f4; }
+.lf-how-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; max-width: 900px; margin: 0 auto; }
+@media (max-width: 700px) { .lf-how-cols { grid-template-columns: 1fr; gap: 26px; } }
+.lf-how-item { text-align: center; }
+.lf-how-item h3 { font-family: $display; font-size: 1.18rem; font-weight: 600; letter-spacing: -.01em; color: $ink; margin: 4px 0 8px; }
+.lf-how-item p { color: $muted; font-size: .95rem; line-height: 1.62; text-align: left; margin: 0; }
+.lf-how-item code { font-family: $font-family-monospace; font-size: .86em; background: #eef2f9; border: 1px solid $line; border-radius: 5px; padding: 1px 5px; color: $ink; }
+
 /* ===== TUTORIAL INVITE ===== */
 .lf-try {
   position: relative; overflow: hidden;

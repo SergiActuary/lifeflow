@@ -35,10 +35,11 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
     books after a one-off compilation, but only for purely arithmetic
     functions returning a single grid.
 
-    `payable="pre"` marks a flow collected at the start of the period, whose
-    last payment therefore falls one period before the contract expires; it
-    trims the vigency accordingly. Writing the amount itself — `t + 1` where
-    the product calls for it — stays with the caller.
+    Every flow is trimmed to each policy's vigency automatically: a `post`
+    flow (the default) runs through the policy's term; `payable="pre"` marks a
+    flow collected at the start of the period, whose last payment therefore
+    falls one period earlier. Writing the amount itself — `t + 1` where the
+    product calls for it — stays with the caller.
     """
     if payable not in PAYABLE:
         raise ValueError(f"payable must be one of {PAYABLE}, got {payable!r}")
@@ -46,13 +47,12 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
     T = timeline.horizon(portfolio)
     N = len(next(iter(portfolio.cols.values())))
 
-    # La fórmula del flujo la escribe el actuario: si es prepagable, usará t+1.
-    # Lo que no puede ver a ojo es que el último pago de cada póliza cae un
-    # período antes de su vencimiento, así que la vigencia se corre una columna.
     pre = payable == "pre"
+    mask = timeline.mask(portfolio)
     if pre:
-        mask = timeline.mask(portfolio)
         vigencia = np.hstack([mask[:, 1:], np.zeros((N, 1), dtype=bool)])
+    else:
+        vigencia = mask
 
     def decorator(f):
         params = list(inspect.signature(f).parameters.keys())[1:]  # skip 't'
@@ -72,7 +72,7 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
 
             def wrapper():
                 out = f_vec(t_grid, *p_grids)
-                return out * vigencia if pre else out
+                return out * vigencia
 
         else:
             def compute_row(n):
@@ -84,8 +84,8 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
                 arr = np.array(results)
                 if arr.ndim == 3:
                     grids = tuple(arr[:, :, k] for k in range(arr.shape[2]))
-                    return tuple(g * vigencia for g in grids) if pre else grids
-                return arr * vigencia if pre else arr
+                    return tuple(g * vigencia for g in grids)
+                return arr * vigencia
 
         return wrapper
 

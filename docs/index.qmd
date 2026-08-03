@@ -108,6 +108,16 @@ reserve = (death_benefit()
   </div>
 </section>
 
+<section class="lf-try">
+  <div class="lf-try-inner">
+    <div class="lf-try-eyebrow">Tutorial</div>
+    <h2>See LifeFlow work, end to end</h2>
+    <p>A hands-on tour of the whole library on a tiny three-policy portfolio —
+    probabilities, cash flows, ALM and reserves, with every grid printed in full.</p>
+    <a class="lf-btn lf-btn-primary" href="tutorial.html">Open the tutorial →</a>
+  </div>
+</section>
+
 <section class="lf-section">
   <div class="lf-author">
     <div class="lf-author-avatar">SA</div>

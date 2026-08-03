@@ -81,7 +81,8 @@ their methods — which is handy for looking under the hood.
 
 `Timeline.mask` returns a boolean matrix that is `True` while each policy is still
 in force. Because contracts end at different times but we still need a rectangular
-`N × T` shape, the mask is what switches expired cells off.
+`N × T` shape, the mask is what switches expired cells off — and it is exactly the
+mask that `@grid` applies to every flow for you, as we'll see below.
 
 ```{python}
 print(tl.mask(pfl))
@@ -139,9 +140,11 @@ each flow ends up as an `N × T` matrix.
 That is what the `@grid` decorator is for. You write a plain function giving the
 flow's value for **one policy at one time `t`**, and the decorator builds the
 `N × T` matrix and fills it — every argument after `t` is matched by name against a
-portfolio column. Beyond removing boilerplate, `@grid` is wired to numba: set
-`jit=True` to compile the function so that conditional logic is not a performance
-bottleneck.
+portfolio column. It also **trims each flow to its policy's vigency** for you,
+reusing the `Timeline` mask above: cells past a policy's term come out as zero, so a
+flow is never carried beyond the contract. Beyond removing boilerplate, `@grid` is
+wired to numba: set `jit=True` to compile the function so that conditional logic is
+not a performance bottleneck.
 
 The **benefit** is the same capital whether the policyholder dies or becomes
 disabled, so a single amount grid serves both:

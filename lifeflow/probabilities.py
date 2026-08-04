@@ -1,6 +1,6 @@
 import numpy as np
 
-from lifeflow._probabilities_rs import compute_inf, compute_exit
+from lifeflow._inforce_nb import _compute_inf, _compute_exits
 
 METHODS = {"udd": 0, "cf": 1}
 
@@ -8,17 +8,17 @@ METHODS = {"udd": 0, "cf": 1}
 class Probabilities:
     """In-force and per-cause exit grids for a portfolio.
 
-    Takes any number of competing decrements. `inforce` and each requested
-    cause of `exit_by` are computed on first access and cached. Asking for a
-    single cause never materializes the others.
+    Takes any number of competing decrements. Both grids are computed on
+    first access and cached; asking for a different exit method recomputes.
     """
 
     def __init__(self, portfolio, decrements):
-        self.portfolio  = portfolio
-        self.decrements = decrements
-        self._qs        = None
-        self._inforce   = None
-        self._exits     = {}      # caché por (índice de causa, método) -> N×T
+        self.portfolio     = portfolio
+        self.decrements    = decrements
+        self._qs           = None
+        self._inforce      = None
+        self._exits        = None
+        self._exits_method = None
 
     def _build_qs(self):
         if self._qs is None:
@@ -29,43 +29,45 @@ class Probabilities:
         return self._qs
 
     def _mask(self):
+        # todas las hipótesis comparten el mismo timeline, así que la máscara
+        # de cualquiera vale para la cartera entera
         return self.decrements[0].timeline.mask(self.portfolio)
-
-    def _quadrature(self):
-        n = -(-len(self.decrements) // 2)
-        x, w = np.polynomial.legendre.leggauss(n)
-        return 0.5 * (x + 1.0), 0.5 * w
 
     @property
     def inforce(self):
-        """P(in force) at the end of each period. Shape N × T."""
-        if self._inforce is None:
-            self._inforce = compute_inf(self._build_qs()) * self._mask()
-        return self._inforce
+        """P(in force) at the end of each period. Shape N × T.
 
-    def _exit_one(self, j, method):
-        key = (j, method)
-        if key not in self._exits:
-            s, w = self._quadrature()
-            self._exits[key] = compute_exit(
-                self._build_qs(), self.inforce, METHODS[method], s, w, j
-            )
-        return self._exits[key]
+        Combines survival across all decrements with contract vigency, so it
+        drops to zero once a policy has expired rather than levelling off.
+        """
+        if self._inforce is None:
+            self._inforce = _compute_inf(self._build_qs()) * self._mask()
+        return self._inforce
 
     def exit_by(self, decrement=None, method="udd"):
         """Exits during each period attributable to one cause. Shape N × T.
 
-        With no argument returns every cause stacked as K × N × T (unpackable).
-        Asking for a single cause computes and caches only that cause.
+        With no argument returns every cause stacked as K × N × T. These are
+        unconditional probabilities measured from the start of the projection,
+        so they multiply cash-flow grids directly.
+
+        `method` is how the period's exits are split between competing causes:
+        "udd" (uniform distribution of decrements) or "cf" (constant force).
         """
         if method not in METHODS:
             raise ValueError(
                 f"method must be one of {tuple(METHODS)}, got {method!r}"
             )
 
+        if self._exits_method != method:
+            n = -(-len(self.decrements) // 2)
+            x, w = np.polynomial.legendre.leggauss(n)
+            s = 0.5 * (x + 1.0)
+            w = 0.5 * w
+
+            self._exits        = _compute_exits(self._build_qs(), self.inforce, METHODS[method], s, w)
+            self._exits_method = method
+
         if decrement is None:
-            return np.stack(
-                [self._exit_one(j, method) for j in range(len(self.decrements))],
-                axis=0,
-            )
-        return self._exit_one(self.decrements.index(decrement), method)
+            return self._exits
+        return self._exits[self.decrements.index(decrement)]

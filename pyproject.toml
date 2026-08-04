@@ -1,11 +1,6 @@
 [build-system]
-requires = ["maturin>=1.7,<2.0"]
-build-backend = "maturin"
-
-[tool.maturin]
-python-source = "."
-module-name = "lifeflow._probabilities_rs"
-features = ["pyo3/extension-module"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "lifeflow"

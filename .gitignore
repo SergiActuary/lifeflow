@@ -35,7 +35,3 @@ CLAUDE.md
 /docs/_site/
 /docs/*.html
 /docs/*_files/
-
-# Rust
-/target/
-lifeflow/*.so

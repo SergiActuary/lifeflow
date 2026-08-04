@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 
 from lifeflow import Probabilities, Decrement, Portfolio, Timeline
-from tests.reference_nb import _compute_inf
+from lifeflow._inforce_nb import _compute_inf
 
 DURACIONES = [3, 5, 8, 6]
 T = 8

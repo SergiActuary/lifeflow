@@ -11,7 +11,7 @@ import polars as pl
 import pytest
 
 from lifeflow import Decrement, Probabilities, Portfolio, Timeline
-from tests.reference_nb import _compute_exits, _compute_inf
+from lifeflow._inforce_nb import _compute_exits, _compute_inf
 
 from tests.reference_udd import compute_exits_udd
 

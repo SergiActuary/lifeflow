@@ -1,33 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "LifeFlow.",
-    "section": "",
-    "text": "Project life-insurance cash flows and compute the reserves. Write your\n        own flows as plain Python; LifeFlow vectorizes them across the whole\n        portfolio as N × T grids and compiles the hot paths\n        with numba.\n      \n      \n        Get started →\n        GitHub\n        PyPI\n      \n      pip install lifeflow\n    \n\n    \n      \n        \n        reserve.py\n      \nimport lifeflow as lf\n\nport = lf.Portfolio(df, \"id\")\nprob = lf.Probabilities(port, [qx])\n\n@lf.grid(port, tl)\ndef death_benefit(t, capital):\n    return capital\n\n# reserve = amount × probability × discount\nreserve = (death_benefit()\n           * prob.exit_by(qx)\n           * discount).sum(axis=1)\n    \n  \n\n\n\n  LifeFlow computes reserves for life-insurance portfolios\n  Easy to write, flexible to your product, and fast at scale.\n  \n\n    \n      \n        \n      \n      Easy to code\n      Object-oriented — the repetitive calculations are automated inside objects, so your own code stays clean.\n      Decorators — ready-made decorators simplify building each calculation and guide you through defining the flows.\n    \n\n    \n      \n        \n      \n      Yours to shape\n      Your flows, your rules — define the shape of every flow yourself: use conditions and any portfolio variable you need.\n      You stay in control — LifeFlow expects you to drive. It hands you the tools and gets out of the way, so you can fit it to your exact product.\n    \n\n    \n      \n        \n      \n      Computationally efficient\n      Fast foundations — built on powerful Python libraries designed for fast, parallelizable numerical work.\n      Speed without losing clarity — the grid design keeps calculations fast and easy to audit and review.\n      Rust modules for a few specific processes are on the roadmap.\n    \n\n  \n\n\n\n  \n    complement · not a replacement\n    LifeFlow works with numpy, not instead of it\n    LifeFlow doesn't box you into closed-form formulas. It gives the actuary a\n    small set of tools — an object-oriented engine for in-force and exit\n    probabilities, and decorators to project cash flows — so you keep\n    total control of the numbers while the boilerplate and the\n    performance are taken care of.\n    \n      \n        numpy\n        The arrays and the maths.\n      \n      +\n      \n        LifeFlow\n        The actuarial structure and the speed.\n      \n    \n    Ideal for moving Excel calculations to\n    Python and standardizing them into a calculation flow that is easy to\n    design, reproducible and fast.\n  \n\n\n\n  How it works\n  Every flow is an N × T matrix — one row per policy, one column per period — and two tools build them.\n\n  \n    \n      \n        \n          \n          \n        \n        \n          \n        \n      \n\n      T periods\n      \n\n      N policies\n      \n\n      \n        t₁t₂t₃t₄t₅\n      \n      \n        P₁P₂Pₙ\n      \n\n      \n      \n\n      \n        \n        \n        \n      \n\n      \n      N × T\n    \n  \n\n  \n    \n      \n      Objects: the fixed maths\n      Portfolio, Timeline, Decrement and Probabilities handle the calculations that are identical for any portfolio — in-force and exit-by-cause probabilities. Set them up once and reuse them everywhere.\n    \n    \n      \n      Decorators: your freedom\n      With the @grid decorator you write a flow's value for one policy at one instant, in plain Python. It broadcasts that into the full N × T matrix — you keep total freedom to define your own flows while the grid is built for you.\n    \n  \n\n\n\n  \n    Tutorial\n    See LifeFlow work, end to end\n    A hands-on tour of the whole library on a tiny three-policy portfolio —\n    probabilities, cash flows, ALM and reserves, with every grid printed in full.\n    Open the tutorial →\n  \n\n\n\n  \n    SA\n    \n      The author\n      Built by SergiActuary\n      Actuary from Barcelona who likes to build things. LifeFlow is my project\n      to bring life-insurance calculations out of Excel and into fast, easy and\n      scalable Python.\n      \n        Visit my site"
-  },
-  {
-    "objectID": "changelog.html",
-    "href": "changelog.html",
-    "title": "Changelog",
-    "section": "",
-    "text": "Release notes for lifeflow. Versions follow semantic versioning."
-  },
-  {
-    "objectID": "changelog.html#section",
-    "href": "changelog.html#section",
-    "title": "Changelog",
-    "section": "0.1.1",
-    "text": "0.1.1\n\nAdded the documentation URL and Python 3.12 / 3.13 classifiers to the package metadata."
-  },
-  {
-    "objectID": "changelog.html#section-1",
-    "href": "changelog.html#section-1",
-    "title": "Changelog",
-    "section": "0.1.0",
-    "text": "0.1.0\nFirst public release.\n\nProbabilities — in-force grid and per-cause exit grids for a portfolio, from any number of competing decrements.\nDecrement — a rate vector (mortality, lapse, …) indexed by any policy variable.\nPortfolio / Timeline — the book of policies and the projection horizon, each policy masked past its own contract boundary.\n@grid — write a cash flow for one policy at one instant; it broadcasts across the whole book. payable=\"pre\" for prepayable flows; jit=True to compile with numba.\nalm — Macaulay and Hicks duration, and convexity, over a spot curve.\nExit splitting under UDD or constant force, exact for any number of causes via Gauss–Legendre quadrature."
-  },
-  {
     "objectID": "example.html",
     "href": "example.html",
     "title": "Guide — computing the BEL of a portfolio",
@@ -60,7 +32,7 @@
     "href": "example.html#the-cash-flows",
     "title": "Guide — computing the BEL of a portfolio",
     "section": "The cash flows",
-    "text": "The cash flows\nEach flow is written with @lf.grid: a function for one policy in one month, which the library extends to the whole book. The arguments after t are matched by name against the columns of the df. We set jit=True to compile with numba —all five functions are pure arithmetic, so it flies.\nFirst the discount factor, which depends on each policy’s technical rate:\n\n@lf.grid(pfl, tl, jit=True)\ndef discount(t, tipo_interes_tecnico):\n    r = (1 + tipo_interes_tecnico) ** (1 / 12) - 1\n    return (1 + r) ** (-t)\n\nv = discount()\nv\n\narray([[0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       ...,\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ]], shape=(722, 392))\n\n\nThe survival benefit. It is paid only at maturity (t == duration_end); every other month is zero. The amount is the initial sum assured with its annual increase, the year anchored at the policy’s issue date:\n\n@lf.grid(pfl, tl, jit=True)\ndef capital_sup(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n                duration_if, duration_end):\n    if t != duration_end:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n\ncap_sup = capital_sup()\ncap_sup\n\narray([[0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(722, 392))\n\n\nThe death benefit. Same as above, but without the if: it can be paid in any month, so it returns the amount in all of them.\n\n@lf.grid(pfl, tl, jit=True)\ndef capital_death(t, capital_fallecimiento_inicial, tasa_revalorizacion_fallecimiento,\n                  duration_if):\n    year = (duration_if + t - 1) // 12\n    return capital_fallecimiento_inicial * (1 + tasa_revalorizacion_fallecimiento) ** year\n\ncap_death = capital_death()\ncap_death\n\narray([[ 21128.3426975 ,  21128.3426975 ,  21339.62612448, ...,\n             0.        ,      0.        ,      0.        ],\n       [108484.22900518, 108484.22900518, 109569.07129523, ...,\n             0.        ,      0.        ,      0.        ],\n       [ 59732.51510991,  59732.51510991,  59732.51510991, ...,\n             0.        ,      0.        ,      0.        ],\n       ...,\n       [161085.69846276, 161085.69846276, 162696.55544739, ...,\n             0.        ,      0.        ,      0.        ],\n       [137916.92281628, 137916.92281628, 137916.92281628, ...,\n             0.        ,      0.        ,      0.        ],\n       [178197.46022377, 178197.46022377, 178197.46022377, ...,\n             0.        ,      0.        ,      0.        ]],\n      shape=(722, 392))\n\n\nThe premiums. A premium is due only in the months when an installment falls, and they are payable in advance (payable=\"pre\"): the installment that would fall at maturity is not collected, and the library takes care of that.\n\n@lf.grid(pfl, tl, payable=\"pre\", jit=True)\ndef prima(t, prima_anual_inicial, tasa_revalorizacion_prima, frecuencia_pago, duration_if):\n    periodo = 12 // frecuencia_pago\n    if (duration_if + t) % periodo != 0:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return prima_anual_inicial * (1 + tasa_revalorizacion_prima) ** year / frecuencia_pago\n\npremium = prima()\n\nThe expenses: an annual percentage of the (revalued) survival sum assured, converted to a monthly charge.\n\n@lf.grid(pfl, tl, jit=True)\ndef gasto(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n          tasa_gasto_sobre_capital, duration_if):\n    year = (duration_if + t - 1) // 12\n    capital = capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n    return capital * ((1 + tasa_gasto_sobre_capital) ** (1 / 12) - 1)\n\nexpenses = gasto()\n\nIn short, each flow answers four questions:\n\n\n\n\n\n\n\n\n\nflow\namount\nprobability\nactive months\n\n\n\n\nsurvival\nrevalued sum assured\nstill in force\nmaturity only\n\n\ndeath\nrevalued sum assured\ndies that month\nevery month\n\n\npremiums\npremium / frequency\nstill in force\ninstallment months (in advance)\n\n\nexpenses\n% of sum assured\nstill in force\nevery month"
+    "text": "The cash flows\nEach flow is written with @lf.grid: a function for one policy in one month, which the library extends to the whole book. The arguments after t are matched by name against the columns of the df. All five functions are pure arithmetic, so we compile them with jit=True and spread the per-cell work across CPU cores with parallel=True.\nFirst the discount factor, which depends on each policy’s technical rate:\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef discount(t, tipo_interes_tecnico):\n    r = (1 + tipo_interes_tecnico) ** (1 / 12) - 1\n    return (1 + r) ** (-t)\n\nv = discount()\nv\n\narray([[0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       ...,\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ]], shape=(722, 392))\n\n\nThe survival benefit. It is paid only at maturity (t == duration_end); every other month is zero. The amount is the initial sum assured with its annual increase, the year anchored at the policy’s issue date:\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef capital_sup(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n                duration_if, duration_end):\n    if t != duration_end:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n\ncap_sup = capital_sup()\ncap_sup\n\narray([[0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(722, 392))\n\n\nThe death benefit. Same as above, but without the if: it can be paid in any month, so it returns the amount in all of them.\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef capital_death(t, capital_fallecimiento_inicial, tasa_revalorizacion_fallecimiento,\n                  duration_if):\n    year = (duration_if + t - 1) // 12\n    return capital_fallecimiento_inicial * (1 + tasa_revalorizacion_fallecimiento) ** year\n\ncap_death = capital_death()\ncap_death\n\narray([[ 21128.3426975 ,  21128.3426975 ,  21339.62612448, ...,\n             0.        ,      0.        ,      0.        ],\n       [108484.22900518, 108484.22900518, 109569.07129523, ...,\n             0.        ,      0.        ,      0.        ],\n       [ 59732.51510991,  59732.51510991,  59732.51510991, ...,\n             0.        ,      0.        ,      0.        ],\n       ...,\n       [161085.69846276, 161085.69846276, 162696.55544739, ...,\n             0.        ,      0.        ,      0.        ],\n       [137916.92281628, 137916.92281628, 137916.92281628, ...,\n             0.        ,      0.        ,      0.        ],\n       [178197.46022377, 178197.46022377, 178197.46022377, ...,\n             0.        ,      0.        ,      0.        ]],\n      shape=(722, 392))\n\n\nThe premiums. A premium is due only in the months when an installment falls, and they are payable in advance (payable=\"pre\"): the installment that would fall at maturity is not collected, and the library takes care of that.\n\n@lf.grid(pfl, tl, payable=\"pre\", jit=True, parallel=True)\ndef prima(t, prima_anual_inicial, tasa_revalorizacion_prima, frecuencia_pago, duration_if):\n    periodo = 12 // frecuencia_pago\n    if (duration_if + t) % periodo != 0:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return prima_anual_inicial * (1 + tasa_revalorizacion_prima) ** year / frecuencia_pago\n\npremium = prima()\n\nThe expenses: an annual percentage of the (revalued) survival sum assured, converted to a monthly charge.\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef gasto(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n          tasa_gasto_sobre_capital, duration_if):\n    year = (duration_if + t - 1) // 12\n    capital = capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n    return capital * ((1 + tasa_gasto_sobre_capital) ** (1 / 12) - 1)\n\nexpenses = gasto()\n\nIn short, each flow answers four questions:\n\n\n\n\n\n\n\n\n\nflow\namount\nprobability\nactive months\n\n\n\n\nsurvival\nrevalued sum assured\nstill in force\nmaturity only\n\n\ndeath\nrevalued sum assured\ndies that month\nevery month\n\n\npremiums\npremium / frequency\nstill in force\ninstallment months (in advance)\n\n\nexpenses\n% of sum assured\nstill in force\nevery month"
   },
   {
     "objectID": "example.html#the-bel",
@@ -68,69 +40,6 @@
     "title": "Guide — computing the BEL of a portfolio",
     "section": "The BEL",
     "text": "The BEL\nWe weight each amount by its probability, discount it, and sum over time. The result is the BEL of each policy (axis=1 collapses the months):\n\nsup_flow      = cap_sup   * tpx\ndeath_flow    = cap_death * exit_death\npremium_flow  = premium   * tpx\nexpenses_flow = expenses  * tpx\n\nprovision_flow = sup_flow + death_flow + expenses_flow - premium_flow\nvaa_provision  = provision_flow * v\n\nbel_per_policy = vaa_provision.sum(axis=1)\nbel_per_policy[:10]\n\narray([ -22645.77176315,   96718.6649697 ,  192136.5333737 ,\n         33071.87769218, -137743.72636635,   24618.23018286,\n        186641.39794827,  105853.65399774,  150539.91919296,\n        234447.96960602])\n\n\nThe total BEL of the male portfolio:\n\nprint(f\"Portfolio BEL (men): {bel_per_policy.sum():,.2f} €  ({len(bel_per_policy)} policies)\")\n\nPortfolio BEL (men): 73,991,103.75 €  (722 policies)\n\n\nAnd the portfolio’s provision profile month by month (axis=0 collapses the policies instead of time), useful to see the run-off:\n\nportfolio_flow = vaa_provision.sum(axis=0)\nportfolio_flow[:12]\n\narray([ 402629.3123463 ,   51081.86525042, -255682.10264871,\n        -52691.82831665,   81856.70885388,  204932.52673875,\n        507405.57873792,  571624.97370704,  349315.37104314,\n        453998.1753435 ,    3265.48275309,  255054.29515605])"
-  },
-  {
-    "objectID": "reference.html",
-    "href": "reference.html",
-    "title": "API reference",
-    "section": "",
-    "text": "The public API, imported from the top-level lifeflow package (import lifeflow as lf). Every object returns plain numpy arrays of shape N × T."
-  },
-  {
-    "objectID": "reference.html#portfolio",
-    "href": "reference.html#portfolio",
-    "title": "API reference",
-    "section": "Portfolio",
-    "text": "Portfolio\nlf.Portfolio(df, id_col=None)\nWraps a polars DataFrame — one row per policy. Every column is exposed as a numpy array and looked up by name by @grid and Decrement. id_col enables .ids and .selectid(value) to isolate a single policy."
-  },
-  {
-    "objectID": "reference.html#timeline",
-    "href": "reference.html#timeline",
-    "title": "API reference",
-    "section": "Timeline",
-    "text": "Timeline\nlf.Timeline(contract_boundary)\nThe projection horizon, read from a portfolio column holding each policy’s term. The longest policy sets T; the others are masked past their own end. t runs 1 … T — the present is never a projection period."
-  },
-  {
-    "objectID": "reference.html#decrement",
-    "href": "reference.html#decrement",
-    "title": "API reference",
-    "section": "Decrement",
-    "text": "Decrement\nlf.Decrement(values, timeline, index_var=None)\nA rate vector on the projection frequency (mortality, lapse, disability…). index_var names the column each policy enters the table at — typically age in months."
-  },
-  {
-    "objectID": "reference.html#probabilities",
-    "href": "reference.html#probabilities",
-    "title": "API reference",
-    "section": "Probabilities",
-    "text": "Probabilities\nprob = lf.Probabilities(portfolio, decrements)\nprob.inforce             # N × T : P(still in force) at the end of each month\nprob.exit_by(decrement)  # N × T : P(exit by that cause) each month\nprob.exit_by(decrement, method=\"udd\")   # or \"cf\" (constant force)\nCombines survival across all decrements with contract vigency. Both grids are computed lazily and cached. exit_by() with no argument returns all causes stacked as K × N × T."
-  },
-  {
-    "objectID": "reference.html#grid",
-    "href": "reference.html#grid",
-    "title": "API reference",
-    "section": "grid",
-    "text": "grid\n@lf.grid(portfolio, timeline, *, jit=False, payable=\"post\")\ndef my_flow(t, col_a, col_b):\n    ...\nExtends a per-policy, per-instant cash flow to the whole book. Arguments after t are matched by name against portfolio columns; calling the decorated function returns the N × T grid.\n\npayable=\"pre\" — prepayable flow: the last payment falls one period before the contract expires; the library trims the vigency.\njit=True — compile with numba for purely arithmetic flows (far faster on large books; single-grid returns only)."
-  },
-  {
-    "objectID": "reference.html#extend_t",
-    "href": "reference.html#extend_t",
-    "title": "API reference",
-    "section": "extend_t",
-    "text": "extend_t\n@lf.extend_t(T)\ndef v(t, rate):\n    return (1 + rate) ** -t\nBuilds a single 1-D vector of length T (a curve that does not vary by policy), evaluated over t = 1 … T."
-  },
-  {
-    "objectID": "reference.html#alm",
-    "href": "reference.html#alm",
-    "title": "API reference",
-    "section": "alm",
-    "text": "alm\nlf.duration_macaulay(flow, spot)   # months\nlf.duration_hicks(flow, spot)      # months\nlf.convexity(flow, spot)           # months²\nPortfolio-level interest-rate sensitivity. Take the aggregated cash flow (collapse the grid with .sum(axis=0)) and a vector of spot rates on the same frequency."
-  },
-  {
-    "objectID": "reference.html#audit_grid",
-    "href": "reference.html#audit_grid",
-    "title": "API reference",
-    "section": "audit_grid",
-    "text": "audit_grid\nlf.audit_grid(grid, portfolio, id_col=None, present_date=None)\nDumps any grid to a polars DataFrame for inspection, one row per policy, with real month-end dates as column headers when present_date (dd/mm/yyyy) is given."
   },
   {
     "objectID": "tutorial.html",
@@ -201,5 +110,96 @@
     "title": "Tutorial — a complete tour of LifeFlow",
     "section": "Where to go next",
     "text": "Where to go next\nThat is the whole library on one small book: Portfolio, Timeline, Decrement, Probabilities (inforce and exit_by), the @grid decorator with payable, extend_t/numpy for discounting, alm for duration and convexity.\nFor a realistic case on a full portfolio, see the Guide; for the full API, the Reference."
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "API reference",
+    "section": "",
+    "text": "The public API, imported from the top-level lifeflow package (import lifeflow as lf). Every object returns plain numpy arrays of shape N × T."
+  },
+  {
+    "objectID": "reference.html#portfolio",
+    "href": "reference.html#portfolio",
+    "title": "API reference",
+    "section": "Portfolio",
+    "text": "Portfolio\nlf.Portfolio(df, id_col=None)\nWraps a polars DataFrame — one row per policy. Every column is exposed as a numpy array and looked up by name by @grid and Decrement. id_col enables .ids and .selectid(value) to isolate a single policy."
+  },
+  {
+    "objectID": "reference.html#timeline",
+    "href": "reference.html#timeline",
+    "title": "API reference",
+    "section": "Timeline",
+    "text": "Timeline\nlf.Timeline(contract_boundary)\nThe projection horizon, read from a portfolio column holding each policy’s term. The longest policy sets T; the others are masked past their own end. t runs 1 … T — the present is never a projection period."
+  },
+  {
+    "objectID": "reference.html#decrement",
+    "href": "reference.html#decrement",
+    "title": "API reference",
+    "section": "Decrement",
+    "text": "Decrement\nlf.Decrement(values, timeline, index_var=None)\nA rate vector on the projection frequency (mortality, lapse, disability…). index_var names the column each policy enters the table at — typically age in months."
+  },
+  {
+    "objectID": "reference.html#probabilities",
+    "href": "reference.html#probabilities",
+    "title": "API reference",
+    "section": "Probabilities",
+    "text": "Probabilities\nprob = lf.Probabilities(portfolio, decrements)\nprob.inforce             # N × T : P(still in force) at the end of each month\nprob.exit_by(decrement)  # N × T : P(exit by that cause) each month\nprob.exit_by(decrement, method=\"udd\")   # or \"cf\" (constant force)\nCombines survival across all decrements with contract vigency. Both grids are computed lazily and cached. exit_by() with no argument returns all causes stacked as K × N × T."
+  },
+  {
+    "objectID": "reference.html#grid",
+    "href": "reference.html#grid",
+    "title": "API reference",
+    "section": "grid",
+    "text": "grid\n@lf.grid(portfolio, timeline, *, jit=False, payable=\"post\")\ndef my_flow(t, col_a, col_b):\n    ...\nExtends a per-policy, per-instant cash flow to the whole book. Arguments after t are matched by name against portfolio columns; calling the decorated function returns the N × T grid.\n\npayable=\"pre\" — prepayable flow: the last payment falls one period before the contract expires; the library trims the vigency.\njit=True — compile with numba for purely arithmetic flows (far faster on large books; single-grid returns only)."
+  },
+  {
+    "objectID": "reference.html#extend_t",
+    "href": "reference.html#extend_t",
+    "title": "API reference",
+    "section": "extend_t",
+    "text": "extend_t\n@lf.extend_t(T)\ndef v(t, rate):\n    return (1 + rate) ** -t\nBuilds a single 1-D vector of length T (a curve that does not vary by policy), evaluated over t = 1 … T."
+  },
+  {
+    "objectID": "reference.html#alm",
+    "href": "reference.html#alm",
+    "title": "API reference",
+    "section": "alm",
+    "text": "alm\nlf.duration_macaulay(flow, spot)   # months\nlf.duration_hicks(flow, spot)      # months\nlf.convexity(flow, spot)           # months²\nPortfolio-level interest-rate sensitivity. Take the aggregated cash flow (collapse the grid with .sum(axis=0)) and a vector of spot rates on the same frequency."
+  },
+  {
+    "objectID": "reference.html#audit_grid",
+    "href": "reference.html#audit_grid",
+    "title": "API reference",
+    "section": "audit_grid",
+    "text": "audit_grid\nlf.audit_grid(grid, portfolio, id_col=None, present_date=None)\nDumps any grid to a polars DataFrame for inspection, one row per policy, with real month-end dates as column headers when present_date (dd/mm/yyyy) is given."
+  },
+  {
+    "objectID": "changelog.html",
+    "href": "changelog.html",
+    "title": "Changelog",
+    "section": "",
+    "text": "Release notes for lifeflow. Versions follow semantic versioning."
+  },
+  {
+    "objectID": "changelog.html#section",
+    "href": "changelog.html#section",
+    "title": "Changelog",
+    "section": "0.1.1",
+    "text": "0.1.1\n\nAdded the documentation URL and Python 3.12 / 3.13 classifiers to the package metadata."
+  },
+  {
+    "objectID": "changelog.html#section-1",
+    "href": "changelog.html#section-1",
+    "title": "Changelog",
+    "section": "0.1.0",
+    "text": "0.1.0\nFirst public release.\n\nProbabilities — in-force grid and per-cause exit grids for a portfolio, from any number of competing decrements.\nDecrement — a rate vector (mortality, lapse, …) indexed by any policy variable.\nPortfolio / Timeline — the book of policies and the projection horizon, each policy masked past its own contract boundary.\n@grid — write a cash flow for one policy at one instant; it broadcasts across the whole book. payable=\"pre\" for prepayable flows; jit=True to compile with numba.\nalm — Macaulay and Hicks duration, and convexity, over a spot curve.\nExit splitting under UDD or constant force, exact for any number of causes via Gauss–Legendre quadrature."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "LifeFlow.",
+    "section": "",
+    "text": "Project life-insurance cash flows and compute the reserves. Write your\n        own flows as plain Python; LifeFlow vectorizes them across the whole\n        portfolio as N × T grids and compiles the hot paths\n        with numba.\n      \n      \n        Get started →\n        GitHub\n        PyPI\n      \n      pip install lifeflow\n    \n\n    \n      \n        \n        reserve.py\n      \nimport lifeflow as lf\n\nport = lf.Portfolio(df, \"id\")\nprob = lf.Probabilities(port, [qx])\n\n@lf.grid(port, tl)\ndef death_benefit(t, capital):\n    return capital\n\n# reserve = amount × probability × discount\nreserve = (death_benefit()\n           * prob.exit_by(qx)\n           * discount).sum(axis=1)\n    \n  \n\n\n\n  LifeFlow computes reserves for life-insurance portfolios\n  Easy to write, flexible to your product, and fast at scale.\n  \n\n    \n      \n        \n      \n      Easy to code\n      Object-oriented — the repetitive calculations are automated inside objects, so your own code stays clean.\n      Decorators — ready-made decorators simplify building each calculation and guide you through defining the flows.\n    \n\n    \n      \n        \n      \n      Yours to shape\n      Your flows, your rules — define the shape of every flow yourself: use conditions and any portfolio variable you need.\n      You stay in control — LifeFlow expects you to drive. It hands you the tools and gets out of the way, so you can fit it to your exact product.\n    \n\n    \n      \n        \n      \n      Computationally efficient\n      Fast foundations — built on powerful Python libraries designed for fast, parallelizable numerical work.\n      Speed without losing clarity — the grid design keeps calculations fast and easy to audit and review.\n      Rust modules for a few specific processes are on the roadmap.\n    \n\n  \n\n\n\n  \n    complement · not a replacement\n    LifeFlow works with numpy, not instead of it\n    LifeFlow doesn't box you into closed-form formulas. It gives the actuary a\n    small set of tools — an object-oriented engine for in-force and exit\n    probabilities, and decorators to project cash flows — so you keep\n    total control of the numbers while the boilerplate and the\n    performance are taken care of.\n    \n      \n        numpy\n        The arrays and the maths.\n      \n      +\n      \n        LifeFlow\n        The actuarial structure and the speed.\n      \n    \n    Ideal for moving Excel calculations to\n    Python and standardizing them into a calculation flow that is easy to\n    design, reproducible and fast.\n  \n\n\n\n  How it works\n  Every flow is an N × T matrix — one row per policy, one column per period — and two tools build them.\n\n  \n    \n      \n        \n          \n          \n        \n        \n          \n        \n      \n\n      T periods\n      \n\n      N policies\n      \n\n      \n        t₁t₂t₃t₄t₅\n      \n      \n        P₁P₂Pₙ\n      \n\n      \n      \n\n      \n        \n        \n        \n      \n\n      \n      N × T\n    \n  \n\n  \n    \n      \n      Objects: the fixed maths\n      Portfolio, Timeline, Decrement and Probabilities handle the calculations that are identical for any portfolio — in-force and exit-by-cause probabilities. Set them up once and reuse them everywhere.\n    \n    \n      \n      Decorators: your freedom\n      With the @grid decorator you write a flow's value for one policy at one instant, in plain Python. It broadcasts that into the full N × T matrix — you keep total freedom to define your own flows while the grid is built for you.\n    \n  \n\n\n\n  \n    Tutorial\n    See LifeFlow work, end to end\n    A hands-on tour of the whole library on a tiny three-policy portfolio —\n    probabilities, cash flows, ALM and reserves, with every grid printed in full.\n    Open the tutorial →\n  \n\n\n\n  \n    SA\n    \n      The author\n      Built by SergiActuary\n      Actuary from Barcelona who likes to build things. LifeFlow is my project\n      to bring life-insurance calculations out of Excel and into fast, easy and\n      scalable Python.\n      \n        Visit my site"
   }
 ]

@@ -1,3 +1,11 @@
+"""Kernel numba de referencia para in-force y exit_by.
+
+Fue la implementación de producción hasta que se sustituyó por una extensión
+Rust (`lifeflow._probabilities_rs`). Se conserva aquí, fuera de la librería,
+como oráculo independiente: `test_rust_vs_reference.py` comprueba que el Rust
+da exactamente lo mismo. Ver también [tests/reference_udd.py].
+"""
+
 import numba as nb
 import numpy as np
 

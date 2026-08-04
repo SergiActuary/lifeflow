@@ -23,7 +23,7 @@ def extend_t(T):
 PAYABLE = ("post", "pre")
 
 
-def grid(portfolio, timeline, *, jit=False, payable="post"):
+def grid(portfolio, timeline, *, jit=False, parallel=False, payable="post"):
     """Extend a per-policy cash flow to the whole book. Returns N × T.
 
     The decorated function is written for one policy at one instant: `t` runs
@@ -33,7 +33,9 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
     Runs as plain Python by default and accepts any flow, tuple returns
     included. `jit=True` compiles the flow with numba — far faster on large
     books after a one-off compilation, but only for purely arithmetic
-    functions returning a single grid.
+    functions returning a single grid. `parallel=True` (which requires `jit`)
+    spreads the N × T work across CPU cores: a further speed-up on heavy flows,
+    at some thread overhead on small books.
 
     Every flow is trimmed to each policy's vigency automatically: a `post`
     flow (the default) runs through the policy's term; `payable="pre"` marks a
@@ -43,6 +45,8 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
     """
     if payable not in PAYABLE:
         raise ValueError(f"payable must be one of {PAYABLE}, got {payable!r}")
+    if parallel and not jit:
+        raise ValueError("parallel=True requires jit=True")
 
     T = timeline.horizon(portfolio)
     N = len(next(iter(portfolio.cols.values())))
@@ -59,7 +63,11 @@ def grid(portfolio, timeline, *, jit=False, payable="post"):
 
         if jit:
             import numba as nb
-            f_vec = nb.vectorize(f)
+            if parallel:
+                sig = nb.float64(nb.int64, *([nb.float64] * len(params)))
+                f_vec = nb.vectorize([sig], target="parallel")(f)
+            else:
+                f_vec = nb.vectorize(f)
             t_grid = np.ascontiguousarray(
                 np.tile(np.arange(1, T + 1, dtype=np.int64), (N, 1))
             )

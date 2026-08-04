@@ -72,6 +72,31 @@ def _compute_exits(qs, inf, method_id, s, w):
     return results
 
 
+@nb.njit(parallel=True, cache=True)
+def _compute_exit(qs, inf, method_id, s, w, j):
+    k = qs.shape[0]
+    n = qs.shape[1]
+    t = qs.shape[2]
+    result = np.zeros((n, t))
+
+    for idx_n in nb.prange(n):
+        for idx_t in range(t):
+            prev = inf[idx_n, idx_t - 1] if idx_t > 0 else 1.0
+            q_vec = qs[:, idx_n, idx_t]
+
+            if method_id == 0:
+                result[idx_n, idx_t] = prev * _udd_share(q_vec, j, s, w)
+
+            else:
+                stay = 1.0
+                for m in range(k):
+                    stay *= 1.0 - q_vec[m]
+                exits = 1.0 - stay
+                result[idx_n, idx_t] = prev * exits * _cf_share(q_vec, j)
+
+    return result
+
+
 # warmup
 _qs = np.zeros((2, 2, 2))
 _inf = np.zeros((2, 2))
@@ -79,4 +104,5 @@ _s = np.array([0.5])
 _w = np.array([1.0])
 _compute_inf(_qs)
 _compute_exits(_qs, _inf, 0, _s, _w)
+_compute_exit(_qs, _inf, 0, _s, _w, 0)
 del _qs, _inf, _s, _w

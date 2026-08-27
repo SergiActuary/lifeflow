@@ -1,47 +1,5 @@
 [
   {
-    "objectID": "example.html",
-    "href": "example.html",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "",
-    "text": "We value a mixed endowment: a policy that pays\n\na survival benefit if the insured is alive at maturity, and\na death benefit if they die before then.\n\nThe insured pays premiums while the contract is in force, and the insurer incurs management expenses. We assume no lapses (no surrenders). The Best Estimate Liability (BEL) is the present value of what the insurer expects to pay out, less what it expects to collect:\n\\[\n\\text{BEL} = \\text{PV}_{\\text{survival}} + \\text{PV}_{\\text{death}}\n           + \\text{PV}_{\\text{expenses}} - \\text{PV}_{\\text{premiums}}\n\\]\nEvery term has the same shape —amount × probability × discount, summed over time— and they differ only in four choices, which we’ll walk through."
-  },
-  {
-    "objectID": "example.html#the-product",
-    "href": "example.html#the-product",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "",
-    "text": "We value a mixed endowment: a policy that pays\n\na survival benefit if the insured is alive at maturity, and\na death benefit if they die before then.\n\nThe insured pays premiums while the contract is in force, and the insurer incurs management expenses. We assume no lapses (no surrenders). The Best Estimate Liability (BEL) is the present value of what the insurer expects to pay out, less what it expects to collect:\n\\[\n\\text{BEL} = \\text{PV}_{\\text{survival}} + \\text{PV}_{\\text{death}}\n           + \\text{PV}_{\\text{expenses}} - \\text{PV}_{\\text{premiums}}\n\\]\nEvery term has the same shape —amount × probability × discount, summed over time— and they differ only in four choices, which we’ll walk through."
-  },
-  {
-    "objectID": "example.html#data-and-assumptions",
-    "href": "example.html#data-and-assumptions",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "Data and assumptions",
-    "text": "Data and assumptions\nWe load the portfolio and keep the men. Each row is a policy; its columns (sums assured, premiums, technical rate, age in months, duration…) are what the library projects from.\nA key idea when using lifeflow: every policy in a Portfolio shares the same actuarial assumptions — the same survival/death table, the same lapse assumption, and so on. An assumption is a single vector; per policy it is adjusted only at its start (where it begins reading the table) and its end (where the contract expires), but every policy draws from that same vector. That is why we split the book before projecting: policies that need a different table belong to a different Portfolio.\n\nimport polars as pl\nimport numpy as np\nimport lifeflow as lf\n\ndf = pl.read_parquet(\"../data/example_lifeflow.parquet\")\ndf_m = df.filter(pl.col(\"sexo\") == \"H\")\ndf_m.head(10)\n\n\nshape: (10, 17)\n\n\n\npoliza_id\nnumero_poliza\nproducto_codigo\nsexo\nfrecuencia_pago\ncapital_supervivencia_inicial\ncapital_fallecimiento_inicial\nprima_anual_inicial\ntipo_interes_tecnico\ntabla_mortalidad\ntasa_revalorizacion_supervivencia\ntasa_revalorizacion_fallecimiento\ntasa_revalorizacion_prima\ntasa_gasto_sobre_capital\nduration_if\nduration_end\nage\n\n\ni64\nstr\nstr\nstr\ni64\nf64\nf64\nf64\nf64\nstr\nf64\nf64\nf64\nf64\ni32\ni32\ni32\n\n\n\n\n1\n\"MS0000001\"\n\"MIXTO_SIMPLE\"\n\"H\"\n12\n25278.44\n19511.67\n2204.42\n0.01\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n106\n217\n430\n\n\n2\n\"MS0000002\"\n\"MIXTO_SIMPLE\"\n\"H\"\n2\n147406.09\n88907.65\n3619.45\n0.025\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n250\n133\n706\n\n\n3\n\"MS0000003\"\n\"MIXTO_SIMPLE\"\n\"H\"\n12\n193060.67\n53539.67\n3344.33\n0.025\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n139\n40\n463\n\n\n4\n\"MS0000004\"\n\"MIXTO_SIMPLE\"\n\"H\"\n1\n148910.76\n31949.81\n4692.7\n0.025\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n210\n209\n534\n\n\n5\n\"MS0000005\"\n\"MIXTO_SIMPLE\"\n\"H\"\n12\n56580.67\n35964.13\n8597.31\n0.01\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n112\n223\n676\n\n\n8\n\"MS0000008\"\n\"MIXTO_SIMPLE\"\n\"H\"\n4\n72560.46\n51796.88\n8491.2\n0.04\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n355\n52\n787\n\n\n9\n\"MS0000009\"\n\"MIXTO_SIMPLE\"\n\"H\"\n12\n231765.99\n126432.31\n6392.36\n0.025\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n161\n78\n749\n\n\n10\n\"MS0000010\"\n\"MIXTO_SIMPLE\"\n\"H\"\n2\n109992.19\n41885.65\n2614.9\n0.025\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n202\n49\n802\n\n\n12\n\"MS0000012\"\n\"MIXTO_SIMPLE\"\n\"H\"\n12\n164404.45\n54318.48\n3294.65\n0.01\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n59\n72\n563\n\n\n13\n\"MS0000013\"\n\"MIXTO_SIMPLE\"\n\"H\"\n1\n265679.58\n194905.23\n4791.04\n0.01\n\"GK80\"\n0.01\n0.01\n0.02\n0.002\n84\n119\n696\n\n\n\n\n\n\nThe mortality table comes at annual frequency, but the projection is monthly. We monthlyize it under constant force —convert the rate first, then repeat it, never the other way around— so that the annual mortality is preserved exactly:\n\nqx_m = pl.read_csv(\"../data/hypotheses/qx_TEST_M.csv\")[\"qx\"].to_numpy()\nqx_m = np.repeat(1 - (1 - qx_m) ** (1 / 12), 12)\nqx_m.shape\n\n(1440,)"
-  },
-  {
-    "objectID": "example.html#the-engine-probabilities",
-    "href": "example.html#the-engine-probabilities",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "The engine: probabilities",
-    "text": "The engine: probabilities\nThree objects build the engine. Portfolio wraps the df; Timeline reads each policy’s term from a column (it sets the horizon and masks out policies that have already matured); Decrement is the mortality table, indexed by each policy’s age in months.\n\npfl = lf.Portfolio(df_m, id_col=\"poliza_id\")\ntl = lf.Timeline(\"duration_end\")\nqx = lf.Decrement(qx_m, tl, index_var=\"age\")\n\nProbabilities combines everything and gives us the two probabilities we need, each a grid of N policies × T months:\n\nprob = lf.Probabilities(pfl, [qx])\ntpx = prob.inforce             # P(still in force) at the end of each month\nexit_death = prob.exit_by(qx)  # P(dies) during each month\n\ntpx.shape, exit_death.shape\n\n((722, 392), (722, 392))"
-  },
-  {
-    "objectID": "example.html#the-cash-flows",
-    "href": "example.html#the-cash-flows",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "The cash flows",
-    "text": "The cash flows\nEach flow is written with @lf.grid: a function for one policy in one month, which the library extends to the whole book. The arguments after t are matched by name against the columns of the df. All five functions are pure arithmetic, so we compile them with jit=True and spread the per-cell work across CPU cores with parallel=True.\nFirst the discount factor, which depends on each policy’s technical rate:\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef discount(t, tipo_interes_tecnico):\n    r = (1 + tipo_interes_tecnico) ** (1 / 12) - 1\n    return (1 + r) ** (-t)\n\nv = discount()\nv\n\narray([[0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ],\n       ...,\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.99917115, 0.99834299, 0.99751551, ..., 0.        , 0.        ,\n        0.        ],\n       [0.9979444 , 0.99589302, 0.99384586, ..., 0.        , 0.        ,\n        0.        ]], shape=(722, 392))\n\n\nThe survival benefit. It is paid only at maturity (t == duration_end); every other month is zero. The amount is the initial sum assured with its annual increase, the year anchored at the policy’s issue date:\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef capital_sup(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n                duration_if, duration_end):\n    if t != duration_end:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n\ncap_sup = capital_sup()\ncap_sup\n\narray([[0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       ...,\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.]], shape=(722, 392))\n\n\nThe death benefit. Same as above, but without the if: it can be paid in any month, so it returns the amount in all of them.\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef capital_death(t, capital_fallecimiento_inicial, tasa_revalorizacion_fallecimiento,\n                  duration_if):\n    year = (duration_if + t - 1) // 12\n    return capital_fallecimiento_inicial * (1 + tasa_revalorizacion_fallecimiento) ** year\n\ncap_death = capital_death()\ncap_death\n\narray([[ 21128.3426975 ,  21128.3426975 ,  21339.62612448, ...,\n             0.        ,      0.        ,      0.        ],\n       [108484.22900518, 108484.22900518, 109569.07129523, ...,\n             0.        ,      0.        ,      0.        ],\n       [ 59732.51510991,  59732.51510991,  59732.51510991, ...,\n             0.        ,      0.        ,      0.        ],\n       ...,\n       [161085.69846276, 161085.69846276, 162696.55544739, ...,\n             0.        ,      0.        ,      0.        ],\n       [137916.92281628, 137916.92281628, 137916.92281628, ...,\n             0.        ,      0.        ,      0.        ],\n       [178197.46022377, 178197.46022377, 178197.46022377, ...,\n             0.        ,      0.        ,      0.        ]],\n      shape=(722, 392))\n\n\nThe premiums. A premium is due only in the months when an installment falls, and they are payable in advance (payable=\"pre\"): the installment that would fall at maturity is not collected, and the library takes care of that.\n\n@lf.grid(pfl, tl, payable=\"pre\", jit=True, parallel=True)\ndef prima(t, prima_anual_inicial, tasa_revalorizacion_prima, frecuencia_pago, duration_if):\n    periodo = 12 // frecuencia_pago\n    if (duration_if + t) % periodo != 0:\n        return 0.0\n    year = (duration_if + t - 1) // 12\n    return prima_anual_inicial * (1 + tasa_revalorizacion_prima) ** year / frecuencia_pago\n\npremium = prima()\n\nThe expenses: an annual percentage of the (revalued) survival sum assured, converted to a monthly charge.\n\n@lf.grid(pfl, tl, jit=True, parallel=True)\ndef gasto(t, capital_supervivencia_inicial, tasa_revalorizacion_supervivencia,\n          tasa_gasto_sobre_capital, duration_if):\n    year = (duration_if + t - 1) // 12\n    capital = capital_supervivencia_inicial * (1 + tasa_revalorizacion_supervivencia) ** year\n    return capital * ((1 + tasa_gasto_sobre_capital) ** (1 / 12) - 1)\n\nexpenses = gasto()\n\nIn short, each flow answers four questions:\n\n\n\n\n\n\n\n\n\nflow\namount\nprobability\nactive months\n\n\n\n\nsurvival\nrevalued sum assured\nstill in force\nmaturity only\n\n\ndeath\nrevalued sum assured\ndies that month\nevery month\n\n\npremiums\npremium / frequency\nstill in force\ninstallment months (in advance)\n\n\nexpenses\n% of sum assured\nstill in force\nevery month"
-  },
-  {
-    "objectID": "example.html#the-bel",
-    "href": "example.html#the-bel",
-    "title": "Guide — computing the BEL of a portfolio",
-    "section": "The BEL",
-    "text": "The BEL\nWe weight each amount by its probability, discount it, and sum over time. The result is the BEL of each policy (axis=1 collapses the months):\n\nsup_flow      = cap_sup   * tpx\ndeath_flow    = cap_death * exit_death\npremium_flow  = premium   * tpx\nexpenses_flow = expenses  * tpx\n\nprovision_flow = sup_flow + death_flow + expenses_flow - premium_flow\nvaa_provision  = provision_flow * v\n\nbel_per_policy = vaa_provision.sum(axis=1)\nbel_per_policy[:10]\n\narray([ -22645.77176315,   96718.6649697 ,  192136.5333737 ,\n         33071.87769218, -137743.72636635,   24618.23018286,\n        186641.39794827,  105853.65399774,  150539.91919296,\n        234447.96960602])\n\n\nThe total BEL of the male portfolio:\n\nprint(f\"Portfolio BEL (men): {bel_per_policy.sum():,.2f} €  ({len(bel_per_policy)} policies)\")\n\nPortfolio BEL (men): 73,991,103.75 €  (722 policies)\n\n\nAnd the portfolio’s provision profile month by month (axis=0 collapses the policies instead of time), useful to see the run-off:\n\nportfolio_flow = vaa_provision.sum(axis=0)\nportfolio_flow[:12]\n\narray([ 402629.3123463 ,   51081.86525042, -255682.10264871,\n        -52691.82831665,   81856.70885388,  204932.52673875,\n        507405.57873792,  571624.97370704,  349315.37104314,\n        453998.1753435 ,    3265.48275309,  255054.29515605])"
-  },
-  {
     "objectID": "tutorial.html",
     "href": "tutorial.html",
     "title": "Tutorial — a complete tour of LifeFlow",
@@ -109,7 +67,28 @@
     "href": "tutorial.html#where-to-go-next",
     "title": "Tutorial — a complete tour of LifeFlow",
     "section": "Where to go next",
-    "text": "Where to go next\nThat is the whole library on one small book: Portfolio, Timeline, Decrement, Probabilities (inforce and exit_by), the @grid decorator with payable, extend_t/numpy for discounting, alm for duration and convexity.\nFor a realistic case on a full portfolio, see the Guide; for the full API, the Reference."
+    "text": "Where to go next\nThat is the whole library on one small book: Portfolio, Timeline, Decrement, Probabilities (inforce and exit_by), the @grid decorator with payable, extend_t/numpy for discounting, alm for duration and convexity.\nFor the full API, see the Reference."
+  },
+  {
+    "objectID": "changelog.html",
+    "href": "changelog.html",
+    "title": "Changelog",
+    "section": "",
+    "text": "Release notes for lifeflow. Versions follow semantic versioning."
+  },
+  {
+    "objectID": "changelog.html#section",
+    "href": "changelog.html#section",
+    "title": "Changelog",
+    "section": "0.1.1",
+    "text": "0.1.1\n\nAdded the documentation URL and Python 3.12 / 3.13 classifiers to the package metadata."
+  },
+  {
+    "objectID": "changelog.html#section-1",
+    "href": "changelog.html#section-1",
+    "title": "Changelog",
+    "section": "0.1.0",
+    "text": "0.1.0\nFirst public release.\n\nProbabilities — in-force grid and per-cause exit grids for a portfolio, from any number of competing decrements.\nDecrement — a rate vector (mortality, lapse, …) indexed by any policy variable.\nPortfolio / Timeline — the book of policies and the projection horizon, each policy masked past its own contract boundary.\n@grid — write a cash flow for one policy at one instant; it broadcasts across the whole book. payable=\"pre\" for prepayable flows; jit=True to compile with numba.\nalm — Macaulay and Hicks duration, and convexity, over a spot curve.\nExit splitting under UDD or constant force, exact for any number of causes via Gauss–Legendre quadrature."
   },
   {
     "objectID": "reference.html",
@@ -173,27 +152,6 @@
     "title": "API reference",
     "section": "audit_grid",
     "text": "audit_grid\nlf.audit_grid(grid, portfolio, id_col=None, present_date=None)\nDumps any grid to a polars DataFrame for inspection, one row per policy, with real month-end dates as column headers when present_date (dd/mm/yyyy) is given."
-  },
-  {
-    "objectID": "changelog.html",
-    "href": "changelog.html",
-    "title": "Changelog",
-    "section": "",
-    "text": "Release notes for lifeflow. Versions follow semantic versioning."
-  },
-  {
-    "objectID": "changelog.html#section",
-    "href": "changelog.html#section",
-    "title": "Changelog",
-    "section": "0.1.1",
-    "text": "0.1.1\n\nAdded the documentation URL and Python 3.12 / 3.13 classifiers to the package metadata."
-  },
-  {
-    "objectID": "changelog.html#section-1",
-    "href": "changelog.html#section-1",
-    "title": "Changelog",
-    "section": "0.1.0",
-    "text": "0.1.0\nFirst public release.\n\nProbabilities — in-force grid and per-cause exit grids for a portfolio, from any number of competing decrements.\nDecrement — a rate vector (mortality, lapse, …) indexed by any policy variable.\nPortfolio / Timeline — the book of policies and the projection horizon, each policy masked past its own contract boundary.\n@grid — write a cash flow for one policy at one instant; it broadcasts across the whole book. payable=\"pre\" for prepayable flows; jit=True to compile with numba.\nalm — Macaulay and Hicks duration, and convexity, over a spot curve.\nExit splitting under UDD or constant force, exact for any number of causes via Gauss–Legendre quadrature."
   },
   {
     "objectID": "index.html",

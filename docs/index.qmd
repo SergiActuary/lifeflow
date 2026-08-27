@@ -17,7 +17,7 @@ toc: false
         with numba.
       </p>
       <div class="lf-cta">
-        <a class="lf-btn lf-btn-primary" href="example.html">Get started →</a>
+        <a class="lf-btn lf-btn-primary" href="tutorial.html">Get started →</a>
         <a class="lf-btn lf-btn-ghost" href="https://github.com/SergiActuary/lifeflow">GitHub</a>
         <a class="lf-btn lf-btn-ghost" href="https://pypi.org/project/lifeflow/">PyPI</a>
       </div>

@@ -245,5 +245,4 @@ That is the whole library on one small book: `Portfolio`, `Timeline`,
 `Decrement`, `Probabilities` (`inforce` and `exit_by`), the `@grid` decorator with
 `payable`, `extend_t`/numpy for discounting, `alm` for duration and convexity.
 
-For a realistic case on a full portfolio, see the [**Guide**](example.qmd); for
-the full API, the [**Reference**](reference.qmd).
+For the full API, see the [**Reference**](reference.qmd).
